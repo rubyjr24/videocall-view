@@ -1,0 +1,7 @@
+
+
+:host {
+    display: block;
+    background-color: var(--primary-color);
+    height: 100%;
+}

@@ -1,0 +1,26 @@
+
+
+:host .bg-light{
+    background-color: var(--light-gray);
+}
+
+:host .bg-light-black{
+    background-color: var(--bs-body-color);
+}
+
+:host .rotate::before{
+    transform: rotate(135deg);
+}
+
+:host .icon-size::before{
+    width: 48px;
+    height: 48px;
+}
+
+:host .videocall-card{
+    position: relative;
+    width: 20%;
+    min-width: 150px;
+    height: 20%;
+    min-height: 100px;
+}

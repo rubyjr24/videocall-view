@@ -1,0 +1,15 @@
+<div class="toast-container">
+    @for (toast of toastService.toasts(); track toast.id) {
+
+    <div class="toast show fade" role="alert" aria-live="assertive" aria-atomic="true" [ngClass]="{'showing' : toast.showing}">
+        <div class="toast-header">
+            <strong class="me-auto">Callio</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"
+                (click)="toastService.remove(toast.id)"></button>
+        </div>
+        <div class="toast-body">
+            {{ toast.message }}
+        </div>
+    </div>
+    }
+</div>

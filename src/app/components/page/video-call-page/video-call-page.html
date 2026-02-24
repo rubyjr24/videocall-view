@@ -1,0 +1,55 @@
+<div class="h-100 w-100 d-flex gap-0 flex-column bg-light-black">
+    <div class="h-100 d-flex flex-wrap">
+        <div class="videocall-card">
+            <img src="" alt="" class="img-fluid">
+        </div>
+        <div class="videocall-card">
+            <img src="" alt="" class="img-fluid">
+        </div>
+        <div class="videocall-card">
+            <img src="" alt="" class="img-fluid">
+        </div>
+        <div class="videocall-card">
+            <img src="" alt="" class="img-fluid">
+        </div>
+        <div class="videocall-card">
+            <img src="" alt="" class="img-fluid">
+        </div>
+        <div class="videocall-card">
+            <img src="" alt="" class="img-fluid">
+        </div>
+        <div class="videocall-card">
+            <img src="" alt="" class="img-fluid">
+        </div>
+        <div class="videocall-card">
+            <img src="" alt="" class="img-fluid">
+        </div>
+        <div class="videocall-card">
+            <img src="" alt="" class="img-fluid">
+        </div>
+        <div class="videocall-card">
+            <img src="" alt="" class="img-fluid">
+        </div>
+    </div>
+    <div class="p-3 d-flex justify-content-center align-items-center gap-3">
+        <button class="btn bg-secondary" (click)="isMicEnabled = !isMicEnabled">
+            @if (isMicEnabled){
+                <i class="bi bi-mic-fill text-light fs-4"></i>
+            }@else {
+                <i class="bi bi-mic-mute-fill text-light fs-4"></i>
+            }
+        </button>
+
+        <button class="btn bg-secondary" (click)="isCamEnabled = !isCamEnabled">
+            @if (isCamEnabled){
+                <i class="bi bi-camera-video-fill text-light fs-4"></i>
+            }@else {
+                <i class="bi bi-camera-video-off-fill text-light fs-4"></i>
+            }
+        </button>
+
+        <button class="btn bg-danger">
+            <i class="bi bi-telephone-fill text-light rotate fs-4"></i>
+        </button>
+    </div>
+</div>

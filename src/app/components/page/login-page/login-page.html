@@ -1,0 +1,32 @@
+<div class="w-100 h-100 container d-flex justify-content-center align-items-center bg-transparent">
+
+    <div class="container bg-white p-5 d-flex col-10 rounded">
+        <form class="col-6 bg-white d-flex justify-content-lg-center align-items-center gap-4 flex-column" [formGroup]="isLogin ? loginForm : signUpForm" (submit)="onSubmit()">
+            <h2>{{isLogin ? 'Inicio de sesión' : 'Registro'}}</h2>
+
+            @if (!isLogin){
+                <div class="form-group w-100">
+                    <label for="email">Correo electrónico</label>
+                    <input type="text" class="form-control" id="name" placeholder="Nombre" formControlName="name">
+                </div>
+            }
+
+            <div class="form-group w-100">
+                <label for="email">Correo electrónico</label>
+                <input type="email" class="form-control" id="email" placeholder="Correo electrónico" formControlName="email">
+            </div>
+            <div class="form-group w-100">
+                <label for="password">Contraseña</label>
+                <input type="password" class="form-control" id="password" placeholder="Contraseña" formControlName="password">
+            </div>
+            <div class="w-100">
+                <button type="submit" class="btn btn-primary me-4">{{!isLogin ? 'Registrarse' : 'Iniciar sesión'}}</button>
+                <button class="btn btn-primary" (click)="toggleLogin()">{{isLogin ? 'Registrarse' : 'Iniciar sesión'}}</button>
+            </div>
+        </form>
+        <div class="col-6 d-flex justify-content-lg-center align-items-center">
+            <img src="assets/imgs/videollamada.webp" alt="" class="img-fluid">
+        </div>
+    </div>
+
+</div>
