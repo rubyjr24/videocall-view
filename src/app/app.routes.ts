@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginPage } from './components/page/login-page/login-page';
 import { HomePage } from './components/page/home-page/home-page';
 import { VideoCallPage } from './components/page/video-call-page/video-call-page';
+import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
   { 
@@ -10,21 +11,21 @@ export const routes: Routes = [
   },
   { 
     path: 'home', 
-    component: HomePage 
+    component: HomePage ,
+    canActivate: [authGuard]
   },
   { 
     path: 'videocall', 
-    component: VideoCallPage 
+    component: VideoCallPage,
+    canActivate: [authGuard]
   },
-  // Ruta por defecto (redirige al login si el path está vacío)
   { 
     path: '', 
-    redirectTo: 'login', 
+    redirectTo: 'home', 
     pathMatch: 'full' 
   },
-  // Comodín para manejar errores 404 (opcional)
   { 
     path: '**', 
-    redirectTo: 'login' 
+    redirectTo: 'home' 
   }
 ];
