@@ -1,0 +1,18 @@
+:host{
+    background-color: var(--bs-body-color) !important;
+}
+
+.avatar-img{
+    max-width: 100px !important;
+    cursor: pointer;
+}
+
+#container-menu-avatar{
+    width: max-content !important;
+    right: 0px;
+    background-color: var(--bs-body-color);
+}
+
+#containner-avatar:hover #container-menu-avatar{
+    display: flex !important;
+}

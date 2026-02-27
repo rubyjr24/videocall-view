@@ -3,3 +3,21 @@
     background-color: var(--bs-body-color);
     height: 100%;
 }
+
+.videocall-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 20px;
+    width: 100%;
+}
+
+.videocall-card {
+    min-height: 250px; 
+    border-radius: 20px;
+    border: 3px solid #5f5f5f;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+

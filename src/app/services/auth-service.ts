@@ -2,9 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { ConfigService } from './config-service';
 import { Observable, tap } from 'rxjs';
-import { LoginRequest } from '../interfaces/login-request';
-import { LoginResponse } from '../interfaces/login-response';
-import { SignUpRequest } from '../interfaces/sign-up-request';
+import { LoginRequest } from '../interfaces/requests/login-request';
+import { LoginResponse } from '../interfaces/responses/login-response';
+import { SignUpRequest } from '../interfaces/requests/sign-up-request';
 
 @Injectable({
 	providedIn: 'root',
@@ -45,6 +45,11 @@ export class AuthService {
         );
 	}
 
+	logout(){
+		this._authState.set(null);
+		this.removeAuthFromStorage();
+	}
+
 	private getAuthFromStorage(): LoginResponse | null {
         const data = localStorage.getItem('auth');
         try {
@@ -52,6 +57,10 @@ export class AuthService {
         } catch {
             return null;
         }
+    }
+
+	private removeAuthFromStorage(): void {
+        localStorage.removeItem('auth');
     }
 
 	private isAuthValid(auth: LoginResponse): boolean{
