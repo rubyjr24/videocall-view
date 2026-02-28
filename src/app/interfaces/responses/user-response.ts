@@ -1,5 +1,5 @@
 export interface UserResponse {
-    userId: Number;
+    userId: number;
     name: string;
     email: string;
 }

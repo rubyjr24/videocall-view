@@ -46,8 +46,29 @@ export class AuthService {
 	}
 
 	logout(){
-		this._authState.set(null);
-		this.removeAuthFromStorage();
+
+		return this.http.get<any>(
+			`${this.config.apiUrl}/logout`,
+		).pipe(
+            tap((_) => {
+                this._authState.set(null);
+				this.removeAuthFromStorage();
+            })
+        );
+
+	}
+
+	deleteAccount(){
+
+		return this.http.delete(
+			`${this.config.apiUrl}/user/delete-account`,
+		).pipe(
+            tap(() => {
+                this._authState.set(null);
+				this.removeAuthFromStorage();
+            })
+        );
+
 	}
 
 	private getAuthFromStorage(): LoginResponse | null {

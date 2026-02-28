@@ -16,3 +16,7 @@
 #containner-avatar:hover #container-menu-avatar{
     display: flex !important;
 }
+
+.border-gray{
+    border-color: var(--light-gray) !important;
+}

@@ -15,10 +15,18 @@ body {
     --primary-color: #1C39BB;
     --secondary-color: #04264A;
     --tertiary-color: #7F93E3;
-    --light-gray: #F2F2F2;
+    --light-gray: #5F5F5F;
 }
 
 .button-primary{
     background-color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
+}
+
+.bg-gray{
+    background-color: var(--bs-body-color) !important;
+}
+
+.cursor-pointer{
+    cursor: pointer !important;
 }
