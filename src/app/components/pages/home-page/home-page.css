@@ -12,6 +12,7 @@
 }
 
 .videocall-card {
+    position: relative;
     min-height: 250px; 
     border-radius: 20px;
     border: 2px solid var(--light-gray);
@@ -50,4 +51,8 @@
 #creationCallForm{
     max-width: 600px;
     min-width: 500px;
+}
+
+.delete-call-icon{
+    z-index: 100;
 }

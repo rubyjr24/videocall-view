@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
-import { LoginPage } from './components/page/login-page/login-page';
-import { HomePage } from './components/page/home-page/home-page';
-import { VideoCallPage } from './components/page/video-call-page/video-call-page';
+import { LoginPage } from './components/pages/login-page/login-page';
+import { HomePage } from './components/pages/home-page/home-page';
+import { VideoCallPage } from './components/pages/video-call-page/video-call-page';
 import { authGuard } from './guards/auth-guard';
+import { VideoCallLobbyPage } from './components/pages/video-call-lobby-page/video-call-lobby-page';
 
 export const routes: Routes = [
   { 
@@ -17,6 +18,11 @@ export const routes: Routes = [
   { 
     path: 'videocall', 
     component: VideoCallPage,
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'lobby', 
+    component: VideoCallLobbyPage,
     canActivate: [authGuard]
   },
   { 

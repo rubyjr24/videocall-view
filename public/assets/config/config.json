@@ -1,3 +1,4 @@
 {
-    "apiUrl": "http://localhost:5050"
+    "apiUrl": "http://localhost:5050",
+    "websocketApiUrl": "ws://localhost:5050"
 }

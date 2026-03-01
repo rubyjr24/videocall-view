@@ -23,10 +23,10 @@ body {
     border-color: var(--primary-color) !important;
 }
 
-.bg-gray{
-    background-color: var(--bs-body-color) !important;
-}
-
 .cursor-pointer{
     cursor: pointer !important;
+}
+
+.bg-light-black{
+    background-color: var(--bs-body-color) !important;
 }

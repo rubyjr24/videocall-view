@@ -31,4 +31,11 @@ export class ConfigService {
         return this.config.apiUrl;
     }
 
+    get websocketApiUrl(): string {
+        if (!this.config) {
+            throw new Error('Configuración no cargada.');
+        }
+        return this.config.websocketApiUrl;
+    }
+
 }

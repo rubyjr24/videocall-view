@@ -5,7 +5,8 @@
 
             @for (call of calls(); track call.roomId) {
                 <div class="videocall-card">
-                    <h3 class="text-white">{{call.name}}</h3>
+                    <h3 class="text-white cursor-pointer" (click)="onClickVideoCall(call.roomId)">{{call.name}}</h3>
+                    <i class="bi bi-trash-fill text-white position-absolute top-0 end-0 p-3 d-flex cursor-pointer delete-call-icon" (click)="deleteCall(call.roomId)"></i>
                 </div>
             }
             
@@ -13,6 +14,12 @@
         </div>
         <h2 class="text-white">Invitaciones</h2>
         <div class="videocall-container">
+
+            @for (call of invitations(); track call.roomId) {
+                <div class="videocall-card cursor-pointer" (click)="onClickVideoCall(call.roomId)">
+                    <h3 class="text-white">{{call.name}}</h3>
+                </div>
+            }
 
         </div>
     </div>
@@ -39,7 +46,7 @@
 
 @if (formCreateCallPopupEnabled){
     <popup-component>
-        <form class="position-relative p-5 d-flex flex-column justify-content-center align-items-center gap-3 bg-gray rounded border border-3 border-gray w-50" id="creationCallForm" [formGroup]="creationCallForm" (submit)="onSubmitUserFavoriteForm()">
+        <form class="position-relative p-5 d-flex flex-column justify-content-center align-items-center gap-3 bg-light-black rounded border border-3 border-gray w-50" id="creationCallForm" [formGroup]="creationCallForm" (submit)="onSubmitUserFavoriteForm()">
             <h2 class="text-white">Creación de videoconferencia</h2>
 
             <div class="form-group w-100">
@@ -60,7 +67,7 @@
 
                 <div class="container-emails w-100 rounded p-2 d-flex flex-wrap gap-2">
                     @for (email of emailInvitations(); track email) {
-                        <div class="d-flex flex-row align-items-center bg-gray rounded p-2 gap-2 min-content">
+                        <div class="d-flex flex-row align-items-center bg-light-black rounded p-2 gap-2 min-content">
                             <span class="text-white">{{email}}</span>
                             <i class="bi bi-x-lg text-white d-flex cursor-pointer" (click)="removeEmailFromForm(email)"></i>
                         </div>
@@ -68,9 +75,8 @@
                 </div>
 
             }
-
             
-            <button type="submit" class="btn button-primary text-white rounded" (click)="createCall()">Crear</button>
+            <button type="submit" class="btn button-primary text-white rounded w-100" (click)="createCall()">Crear</button>
 
             <i class="bi bi-x-lg text-white position-absolute top-0 end-0 m-3 d-flex cursor-pointer" (click)="formCreateCallPopupEnabled = false"></i>
         </form>
