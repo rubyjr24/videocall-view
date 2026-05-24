@@ -1,0 +1,11 @@
+<select [ngModel]="device()?.deviceId ?? ''" (ngModelChange)="onDeviceChange($event)" class="form-control bg-dark text-light rounded h-100">
+    <option value="" disabled class="bg-dark">-- Seleccione --</option>
+
+    @for (deviceItem of devices; track deviceItem.deviceId) {
+        <option [ngValue]="deviceItem.deviceId" class="bg-dark text-light">
+            {{ deviceItem.label }}
+        </option>
+    } @empty {
+        <option value="" disabled class="bg-dark text-light">No se encontraron dispositivos</option>
+    }
+</select>

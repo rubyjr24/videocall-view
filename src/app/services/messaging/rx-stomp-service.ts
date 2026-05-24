@@ -29,7 +29,7 @@ export class RxStompService implements IMessagingService {
                 Authorization: `Bearer ${this.auth.authData()?.token}`
             },
             debug: (msg: string): void => {
-                console.log(new Date(), msg);
+                //console.log(new Date(), msg);
             },
         };
 
@@ -47,10 +47,8 @@ export class RxStompService implements IMessagingService {
 
     watch(topic: string): Observable<any> {
         this.topics.add(topic);
-        console.log("TOPIC: " +topic )
         return this.rxStomp.watch(topic).pipe(
             map(message => {
-                console.log("asdasdasdsa")
                 return JSON.parse(message.body)
             })
         );

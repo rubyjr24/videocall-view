@@ -33,11 +33,10 @@ export class VideoCallLobbyPage {
     enterVideoCall(){
 
         this.videocall.joinCall().subscribe({
-            next: (data) => console.log(`Join http: ${data}`),
+            next: (data) => this.router.navigate(['videocall']),
             error: (error) => console.error(error)
         })
 
-        //this.router.navigate(['videocall']);
     }
 
 }

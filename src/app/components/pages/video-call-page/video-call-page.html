@@ -1,47 +1,47 @@
 <div class="h-100 w-100 d-flex gap-0 flex-column bg-light-black">
-    <div class="h-100 d-flex flex-wrap">
-        <div class="videocall-card">
-            <img src="" alt="" class="img-fluid">
+    <div #videocallsContainer class="videocalls w-100 h-100 d-grid gap-3" [ngStyle]="{ 'grid-template-columns': `repeat(${columnsGridVideocallContainer()}, 1fr)` }">
+        <div class="video-cam-card d-flex justify-content-center align-items-center rounded shadow-lg w-100">
+            @if (this.isCamEnabled()){
+              <video #localVideo [srcObject]="localStream()" autoplay playsinline class="w-100 h-100"></video>
+            }@else{
+              <img src="./assets/imgs/avatar.png" alt="Avatar">
+            }
         </div>
-        <div class="videocall-card">
-            <img src="" alt="" class="img-fluid">
-        </div>
-        <div class="videocall-card">
-            <img src="" alt="" class="img-fluid">
-        </div>
-        <div class="videocall-card">
-            <img src="" alt="" class="img-fluid">
-        </div>
-        <div class="videocall-card">
-            <img src="" alt="" class="img-fluid">
-        </div>
-        <div class="videocall-card">
-            <img src="" alt="" class="img-fluid">
-        </div>
-        <div class="videocall-card">
-            <img src="" alt="" class="img-fluid">
-        </div>
-        <div class="videocall-card">
-            <img src="" alt="" class="img-fluid">
-        </div>
-        <div class="videocall-card">
-            <img src="" alt="" class="img-fluid">
-        </div>
-        <div class="videocall-card">
-            <img src="" alt="" class="img-fluid">
-        </div>
+
+        @for (streams of remoteStreams() | keyvalue; track streams.key) {
+
+            @for (stream of streams.value; track stream.id) {
+                <div class="video-cam-card d-flex justify-content-center align-items-center rounded shadow-lg w-100 position-relative">
+
+                @if(stream.active){
+                    <video [srcObject]="stream" autoplay playsinline></video>
+                    <div class="user-label position-absolute" style="bottom: 5px; left: 5px;">
+                        <span class="text-light">Usuario: {{ streams.key }}</span>
+                    </div>
+                }@else{
+                    <img src="./assets/imgs/avatar.png" alt="Avatar">
+                }
+
+                </div>
+            }
+        }
     </div>
     <div class="p-3 d-flex justify-content-center align-items-center gap-3">
-        <button class="btn bg-secondary" (click)="isMicEnabled = !isMicEnabled">
-            @if (isMicEnabled){
+
+        <selector-device-component [(device)]="camera" [devices]="cameras()"/>
+        <selector-device-component [(device)]="microphone" [devices]="microphones()"/>
+        <selector-device-component [(device)]="speaker" [devices]="speakers()"/>
+
+        <button class="btn bg-secondary" (click)="this.isMicEnabled.set(!this.isMicEnabled())">
+            @if (this.isMicEnabled()){
                 <i class="bi bi-mic-fill text-light fs-4"></i>
             }@else {
                 <i class="bi bi-mic-mute-fill text-light fs-4"></i>
             }
         </button>
 
-        <button class="btn bg-secondary" (click)="isCamEnabled = !isCamEnabled">
-            @if (isCamEnabled){
+        <button class="btn bg-secondary" (click)="this.isCamEnabled.set(!isCamEnabled())">
+            @if (this.isCamEnabled()){
                 <i class="bi bi-camera-video-fill text-light fs-4"></i>
             }@else {
                 <i class="bi bi-camera-video-off-fill text-light fs-4"></i>

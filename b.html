@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <style>
+        .contenedor-cards {
+            display: grid;
+            /* Usamos la variable --columnas que inyectará JavaScript. 
+     Si por alguna razón falla JS, por defecto usará 4 columnas */
+            grid-template-columns: repeat(var(--columnas, 4), 1fr);
+            gap: 20px;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Estilo visual rápido para las tarjetas */
+        .card {
+            background-color: #f0f0f0;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            aspect-ratio: 1 / 1;
+            /* Esto hace que las tarjetas sean perfectamente cuadradas */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    <div id="grid-dinamico" class="contenedor-cards">
+        <!-- Aquí puedes meter 10, 17, 20 o las tarjetas que quieras -->
+        <div class="card">
+            <h3>1</h3>
+        </div>
+        <div class="card">
+            <h3>2</h3>
+        </div>
+        <div class="card">
+            <h3>3</h3>
+        </div>
+        <div class="card">
+            <h3>3</h3>
+        </div>
+        <div class="card">
+            <h3>3</h3>
+        </div>
+        <div class="card">
+            <h3>3</h3>
+        </div>
+        <div class="card">
+            <h3>3</h3>
+        </div>
+        <div class="card">
+            <h3>3</h3>
+        </div>
+        <div class="card">
+            <h3>3</h3>
+        </div>
+        <div class="card">
+            <h3>3</h3>
+        </div>
+        <!-- ... añade tantas como quieras probar ... -->
+    </div>
+
+    <script>
+        // 1. Seleccionamos el contenedor de las tarjetas
+        const contenedor = document.getElementById('grid-dinamico');
+
+        // 2. Contamos cuántas tarjetas hijas tiene dentro
+        const numeroDeCards = contenedor.children.length;
+
+        // 3. Calculamos la raíz cuadrada y redondeamos hacia arriba
+        // Si hay 10 cards: raíz es ~3.16 -> redondea a 4
+        // Si hay 17 cards: raíz es ~4.12 -> redondea a 5
+        const columnasNecesarias = Math.ceil(Math.sqrt(numeroDeCards));
+
+        // 4. Le pasamos este número mágicamente a nuestro CSS
+        contenedor.style.setProperty('--columnas', columnasNecesarias);
+    </script>
+
+</body>
+
+</html>
