@@ -19,11 +19,14 @@ export class VideoCallPage {
 
     private onIsMicEnabledEffect = effect(() =>  {
         console.log("onIsMicEnabledEffect")
-        this.toggleMute();
+
+        const isEnabled = this.isMicEnabled();
+        untracked(() => this.toggleDevice(isEnabled, 'audio'));
     });
     private onIsCamEnabledEffect = effect(() => {
         console.log("onIsCamEnabledEffect")
-        //this.onCameraOrMicChange();
+        const isEnabled = this.isCamEnabled();
+        untracked(() => this.toggleDevice(isEnabled, 'video'));
     });
 
     roomId!:number;
@@ -56,11 +59,23 @@ export class VideoCallPage {
 
     private onCameraChangeEffect = effect(() => {
         console.log("onCameraChangeEffect")
-        this.onCameraOrMicChange();
+
+        const camara = this.camera();
+        const mic = this.microphone();
+
+        untracked(() => {
+            this.onCameraOrMicChange(camara?.deviceId, mic?.deviceId);
+        });
+
     });
     private onMicrophoneChangeEffect = effect(() => {
         console.log("onMicrophoneChangeEffect")
-        this.onCameraOrMicChange()
+        const camara = this.camera();
+        const mic = this.microphone();
+
+        untracked(() => {
+            this.onCameraOrMicChange(camara?.deviceId, mic?.deviceId);
+        });
     });
     private onSpeakerChangeEffect = effect(() => {
         console.log("onSpeakerChangeEffect")
@@ -68,6 +83,9 @@ export class VideoCallPage {
     });
 
     columnsGridVideocallContainer = computed(() => Math.ceil(Math.sqrt(this.peers().size + 1)));
+
+    pendingIceCandidates = new Map<string, RTCIceCandidateInit[]>();
+    
 
     constructor(
         private auth: AuthService,
@@ -201,12 +219,14 @@ export class VideoCallPage {
 
         if (this.localStream()){
             this.localStream()!.getTracks().forEach(track => {
+                console.log("Track sended: ", track);
                 pc.addTrack(track, this.localStream()!);
             });
         }
 
         // Cuando llegue stream remoto
         pc.ontrack = (event) => {
+            console.log("New track ", event)
             this.remoteStreams.update(
                 current =>  {
                     const map = new Map(current);
@@ -277,6 +297,8 @@ export class VideoCallPage {
         
         await pc.setRemoteDescription(new RTCSessionDescription(message.payload.data));
 
+        await this.flushIceCandidates(message.from, pc);
+
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
 
@@ -299,17 +321,59 @@ export class VideoCallPage {
         if (!pc) return;
 
         await pc.setRemoteDescription(new RTCSessionDescription(message.payload.data));
+
+        await this.flushIceCandidates(message.from, pc);
     }
 
     // =============================
     // 7️⃣ Manejar ICE
     // =============================
+    /*
     async handleIceCandidate(message: SignalMessage) {
         const pc = this.peers().get(message.from);
         
         if (!pc) return;
 
         await pc.addIceCandidate(new RTCIceCandidate(message.payload.data));
+    }
+    */
+
+    async handleIceCandidate(message: SignalMessage) {
+        const pc = this.peers().get(message.from);
+        if (!pc) return;
+
+        const candidate = new RTCIceCandidate(message.payload.data);
+
+        // Si ya tenemos la descripción remota, lo añadimos directamente
+        if (pc.remoteDescription) {
+            try {
+                await pc.addIceCandidate(candidate);
+            } catch (error) {
+                console.error("Error al añadir ICE candidate:", error);
+            }
+        } else {
+            // Si no, lo metemos en la cola de espera de este usuario
+            const pending = this.pendingIceCandidates.get(message.from) || [];
+            pending.push(candidate);
+            this.pendingIceCandidates.set(message.from, pending);
+        }
+    }
+
+    private async flushIceCandidates(userId: string, pc: RTCPeerConnection) {
+        const pending = this.pendingIceCandidates.get(userId);
+        
+        if (pending && pending.length > 0) {
+            
+            for (const candidate of pending) {
+                try {
+                    await pc.addIceCandidate(candidate);
+                } catch (error) {
+                    console.error("Error al procesar ICE candidate en cola:", error);
+                }
+            }
+            // Limpiamos la cola una vez procesados
+            this.pendingIceCandidates.delete(userId);
+        }
     }
 
     // =============================
@@ -334,6 +398,8 @@ export class VideoCallPage {
                 }
             )
         }
+
+        this.pendingIceCandidates.delete(userId);
     }
 
 
@@ -396,24 +462,20 @@ export class VideoCallPage {
     }
 
 
-    async onCameraOrMicChange() {
+    async onCameraOrMicChange(camaraId?: string, microponeId?:string) {
 
-        untracked(async () => {
+        this.localStream()?.getTracks().forEach(track => track.stop());
+        
+        this.localStream.set(await this.createMediaStreamWithIds(camaraId, microponeId));
+        if (!this.localStream()) return;
 
-            this.localStream()?.getTracks().forEach(track => track.stop());
-            
-            this.localStream.set(await this.createMediaStream());
-            if (!this.localStream()) return;
+        if (this.localVideo){
+            this.localVideo.nativeElement.srcObject = this.localStream() ?? null;
+        }
 
-            if (this.localVideo){
-                this.localVideo.nativeElement.srcObject = this.localStream() ?? null;
-            }
-
-            this.localStream()?.getTracks().forEach(track => {
-                this.updatePeerTrack(track);
-            });
-
-        })
+        this.localStream()?.getTracks().forEach(track => {
+            this.updatePeerTrack(track);
+        });
         
     }
 
@@ -436,17 +498,12 @@ export class VideoCallPage {
     }
 
     updatePeerTrack(newTrack: MediaStreamTrack) {
-
-        console.log("updatePeerTrack")
         
         this.peers().forEach(pc => {
             
-            console.log("Senders: ", pc.getSenders())
             const sender = pc.getSenders().find(s => 
                 s.track && s.track.kind === newTrack.kind
             );
-
-            console.log("updatePeerTrack", newTrack.kind, sender)
 
             if (sender) {
                 sender.replaceTrack(newTrack)
@@ -456,35 +513,32 @@ export class VideoCallPage {
         
     }
 
-    async toggleMute(){
+    async toggleDevice(isEnabled: boolean, deviceType: 'video' | 'audio'){
 
         this.peers().forEach(async pc => {
 
-            const audioSender = pc.getSenders().find(sender => sender.track?.kind === 'audio');
+            const sender = pc.getSenders().find(sender => sender.track?.kind === deviceType);
+            
+            if (sender == undefined) return;
 
-            if (audioSender == undefined) return;
+            if (isEnabled){
 
-            if (this.isMicEnabled()){
+                this.localStream()?.getTracks().filter((t) => t.kind === deviceType).forEach((t) => t.stop());
 
-                untracked(async () => {
+                this.localStream.set(await this.createMediaStream());
+                console.log("LocalStream: ", this.localStream())
+                if (!this.localStream()) return;
 
-                    this.localStream()?.getTracks().forEach((t) => t.stop());
-
-                    this.localStream.set(await this.createMediaStream());
-                    if (!this.localStream()) return;
-
-                    this.localStream()!.getTracks().forEach((track) => {
-                        this.updatePeerTrack(track);
-                    });
-
+                this.localStream()!.getTracks().forEach((track) => {
+                    this.updatePeerTrack(track);
                 });
             
             }else{
 
-                await audioSender.replaceTrack(null);
+                if (sender.track) sender.track.enabled = false;
 
                 if (this.localStream()) {
-                    this.localStream()?.getAudioTracks().forEach(track => track.stop());
+                    this.localStream()?.getTracks().filter((t) => t.kind === deviceType).forEach((t) => t.stop());
                 }
 
             }
@@ -494,9 +548,13 @@ export class VideoCallPage {
     }
 
     async createMediaStream(){
+        return this.createMediaStreamWithIds(this.camera()?.deviceId, this.microphone()?.deviceId);
+    }
+
+    async createMediaStreamWithIds(camaraId?: string, microponeId?:string){
         const constraints: MediaStreamConstraints = {
-            video: this.camera()?.deviceId ? { deviceId: { exact: this.camera()?.deviceId }, width: { ideal: 1280 } } : false,
-            audio: this.microphone()?.deviceId ? { deviceId: { exact: this.microphone()?.deviceId } } : true
+            video: camaraId ? { deviceId: { exact: camaraId }, width: { ideal: 1280 } } : false,
+            audio: microponeId ? { deviceId: { exact: microponeId } } : true
         };
 
         try {
