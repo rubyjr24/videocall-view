@@ -5,6 +5,7 @@ import { VideoCallService } from '../../../services/video-call-service';
 import { SignalMessage } from '../../../interfaces/signal-message';
 import { KeyValuePipe, NgStyle } from '@angular/common';
 import { SelectorDeviceComponent } from './components/selector-device-component/selector-device-component';
+import { ToastService } from '../../../services/toast-service';
 
 @Component({
     selector: 'video-call-page',
@@ -90,7 +91,8 @@ export class VideoCallPage {
     constructor(
         private auth: AuthService,
         private client: RxStompService,
-        private videocall: VideoCallService
+        private videocall: VideoCallService,
+        private toastService: ToastService
     ) { }
 
     async ngOnInit() {
@@ -126,6 +128,7 @@ export class VideoCallPage {
 
             if (video){
                 video.srcObject = this.localStream() ?? null;
+                video.muted = true; // No funciona
                 await video.play();
             }
 
@@ -151,6 +154,11 @@ export class VideoCallPage {
     }
 
     leftRoom() {
+
+        this.peers().forEach((p) => {
+            p.close();
+        })
+
         this.client.publish(`/api/room/${this.roomId}/signal`, {
             type: 'user-left',
             roomId: this.roomId,
@@ -219,7 +227,6 @@ export class VideoCallPage {
 
         if (this.localStream()){
             this.localStream()!.getTracks().forEach(track => {
-                console.log("Track sended: ", track);
                 pc.addTrack(track, this.localStream()!);
             });
         }
@@ -227,17 +234,23 @@ export class VideoCallPage {
         // Cuando llegue stream remoto
         pc.ontrack = (event) => {
             console.log("New track ", event)
-            this.remoteStreams.update(
-                current =>  {
-                    const map = new Map(current);
-                    if (map.has(remoteUserId)){
-                        map.get(remoteUserId)?.push(...event.streams)
-                    }else{ 
-                        map.set(remoteUserId, [...event.streams]);
-                    }
-                    return map;
-                }
-            );
+            this.remoteStreams.update(current => {
+                const map = new Map(current);
+
+                const existingStreams = map.get(remoteUserId) ?? [];
+
+                const newStreams = event.streams.filter(
+                    incoming =>
+                        !existingStreams.some(existing => existing.id === incoming.id)
+                );
+
+                map.set(remoteUserId, [
+                    ...existingStreams,
+                    ...newStreams
+                ]);
+
+                return map;
+            });
         };
 
         // ICE
@@ -255,7 +268,11 @@ export class VideoCallPage {
         };
 
         if (isInitiator) {
-            const offer = await pc.createOffer();
+            const offer = await pc.createOffer({
+                offerToReceiveAudio: true,
+                offerToReceiveVideo: true
+            });
+
             await pc.setLocalDescription(offer);
 
             this.client.publish(`/api/room/${this.roomId}/signal`, {
@@ -487,6 +504,10 @@ export class VideoCallPage {
         const videos: NodeListOf<HTMLVideoElement> = videocallsContainer.querySelectorAll('video');
 
         videos.forEach(async (video: HTMLVideoElement) => {
+
+            console.log(this.localVideo?.nativeElement)
+            console.log(video)
+
 
             if (this.localVideo && video == this.localVideo.nativeElement) return;
 

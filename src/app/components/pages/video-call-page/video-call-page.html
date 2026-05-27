@@ -2,7 +2,7 @@
     <div #videocallsContainer class="videocalls w-100 h-100 d-grid gap-3" [ngStyle]="{ 'grid-template-columns': `repeat(${columnsGridVideocallContainer()}, 1fr)` }">
         <div class="video-cam-card d-flex justify-content-center align-items-center rounded shadow-lg w-100">
             @if (this.isCamEnabled()){
-              <video #localVideo [srcObject]="localStream()" autoplay playsinline class="w-100 h-100"></video>
+              <video #localVideo [srcObject]="localStream()" autoplay muted playsinline class="w-100 h-100"></video>
             }@else{
               <img src="./assets/imgs/avatar.png" alt="Avatar">
             }
@@ -14,6 +14,7 @@
                 <div class="video-cam-card d-flex justify-content-center align-items-center rounded shadow-lg w-100 position-relative">
 
                 @if(stream.active){
+                    <div>{{stream.id}}</div>
                     <video [srcObject]="stream" autoplay playsinline></video>
                     <div class="user-label position-absolute" style="bottom: 5px; left: 5px;">
                         <span class="text-light">Usuario: {{ streams.key }}</span>
