@@ -5,7 +5,6 @@ import { VideoCallService } from '../../../services/video-call-service';
 import { SignalMessage } from '../../../interfaces/signal-message';
 import { KeyValuePipe, NgStyle } from '@angular/common';
 import { SelectorDeviceComponent } from './components/selector-device-component/selector-device-component';
-import { ToastService } from '../../../services/toast-service';
 
 @Component({
     selector: 'video-call-page',
@@ -48,7 +47,6 @@ export class VideoCallPage {
 
     @ViewChild('videocallsContainer', { static: true })
     videocallsContainer!: ElementRef<HTMLVideoElement>;
-    
 
     cameras = signal<MediaDeviceInfo[]>([]);
     microphones = signal<MediaDeviceInfo[]>([]);
@@ -86,13 +84,11 @@ export class VideoCallPage {
     columnsGridVideocallContainer = computed(() => Math.ceil(Math.sqrt(this.peers().size + 1)));
 
     pendingIceCandidates = new Map<string, RTCIceCandidateInit[]>();
-    
 
     constructor(
         private auth: AuthService,
         private client: RxStompService,
-        private videocall: VideoCallService,
-        private toastService: ToastService
+        private videocall: VideoCallService
     ) { }
 
     async ngOnInit() {
@@ -216,7 +212,6 @@ export class VideoCallPage {
         if (this.peers().has(remoteUserId)) return;
 
         const pc = new RTCPeerConnection(this.iceConfig);
-        
         this.peers.update(
             current => {
                 const map = new Map(current);
@@ -233,7 +228,6 @@ export class VideoCallPage {
 
         // Cuando llegue stream remoto
         pc.ontrack = (event) => {
-            console.log("New track ", event)
             this.remoteStreams.update(current => {
                 const map = new Map(current);
 
@@ -555,13 +549,8 @@ export class VideoCallPage {
                 });
             
             }else{
-
                 if (sender.track) sender.track.enabled = false;
-
-                if (this.localStream()) {
-                    this.localStream()?.getTracks().filter((t) => t.kind === deviceType).forEach((t) => t.stop());
-                }
-
+                sender.track?.stop();
             }
 
         });

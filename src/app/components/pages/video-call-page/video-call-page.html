@@ -13,7 +13,7 @@
             @for (stream of streams.value; track stream.id) {
                 <div class="video-cam-card d-flex justify-content-center align-items-center rounded shadow-lg w-100 position-relative">
 
-                @if(stream.active){
+                @if(stream.getVideoTracks().length && stream.active){
                     <div>{{stream.id}}</div>
                     <video [srcObject]="stream" autoplay playsinline></video>
                     <div class="user-label position-absolute" style="bottom: 5px; left: 5px;">
