@@ -18,7 +18,7 @@ body {
     --light-gray: #5F5F5F;
 }
 
-.button-primary{
+.bg-primary-custom{
     background-color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
 }

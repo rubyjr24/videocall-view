@@ -4,16 +4,19 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth-service';
 import { LoginResponse } from '../../../interfaces/responses/login-response';
 import { ToastService } from '../../../services/toast-service';
+import { NgClass } from '@angular/common';
+import { HeaderService } from '../../../services/header-service';
 
 @Component({
     selector: 'login-page',
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, NgClass],
     templateUrl: './login-page.html',
     styleUrl: './login-page.css',
 })
 export class LoginPage {
 
     isLogin: boolean = true;
+    hiddenPassword: boolean = true;
 
     loginForm = new FormGroup(
         {
@@ -64,8 +67,13 @@ export class LoginPage {
     constructor(
         private router: Router,
         private auth: AuthService,
-        private toast: ToastService
+        private toast: ToastService,
+        private headerService: HeaderService
     ) { }
+
+    ngOnInit(){
+        this.headerService.hide();
+    }
 
     toggleLogin() {
         this.isLogin = !this.isLogin;

@@ -1,8 +1,12 @@
 <div class="w-100 h-100 container d-flex justify-content-center align-items-center bg-transparent">
 
-    <div class="container bg-white p-5 d-flex col-10 rounded">
-        <form class="col-6 bg-white d-flex justify-content-lg-center align-items-center gap-4 flex-column" [formGroup]="isLogin ? loginForm : signUpForm" (submit)="onSubmit()">
+    <div class="container bg-white p-5 d-flex col-11 col-sm-10 rounded">
+        <form class="col-12 col-md-6 bg-white d-flex justify-content-lg-center align-items-center gap-4 flex-column" [formGroup]="isLogin ? loginForm : signUpForm" (submit)="onSubmit()">
             <h2>{{isLogin ? 'Inicio de sesión' : 'Registro'}}</h2>
+
+            <div class="d-flex d-md-none justify-content-lg-center align-items-center">
+                <img src="assets/imgs/videollamada.webp" alt="" class="img-fluid">
+            </div>
 
             @if (!isLogin){
                 <div class="form-group w-100">
@@ -17,14 +21,19 @@
             </div>
             <div class="form-group w-100">
                 <label for="password">Contraseña</label>
-                <input type="password" class="form-control" id="password" placeholder="Contraseña" formControlName="password">
+                <div class="input-group">
+                    <input [type]="hiddenPassword ? 'password' : 'text'" class="form-control" placeholder="Contraseña" formControlName="password">
+                    <button class="btn btn-outline-secondary border-gray bg-primary-custom" type="button" (click)="hiddenPassword = !hiddenPassword">
+                        <i class="bi text-light" [ngClass]="hiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash-fill'"></i>
+                    </button>
+                </div>
             </div>
-            <div class="w-100">
-                <button type="submit" class="btn btn-primary button-primary me-4">{{!isLogin ? 'Registrarse' : 'Iniciar sesión'}}</button>
-                <button class="btn btn-primary button-primary" (click)="toggleLogin()">{{isLogin ? 'Registrarse' : 'Iniciar sesión'}}</button>
+            <div class="w-100 d-flex flex-row gap-4">
+                <button type="submit" class="btn btn-primary bg-primary-custom">{{!isLogin ? 'Registrarse' : 'Iniciar sesión'}}</button>
+                <button class="btn btn-primary bg-primary-custom" (click)="toggleLogin()">{{isLogin ? 'Registrarse' : 'Iniciar sesión'}}</button>
             </div>
         </form>
-        <div class="col-6 d-flex justify-content-lg-center align-items-center">
+        <div class="col-6 d-none d-md-flex justify-content-lg-center align-items-center">
             <img src="assets/imgs/videollamada.webp" alt="" class="img-fluid">
         </div>
     </div>

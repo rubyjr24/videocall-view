@@ -1,6 +1,15 @@
+@if (mostrarContactos) {
+    <div class="offcanvas-backdrop fade show d-md-none h-100" (click)="mostrarContactos = false"></div>
+}
+
 <div class="w-100 h-100 p-4 d-flex flex-row gap-4">
     <div class="d-flex flex-column gap-4 w-100 h-100">
-        <h2 class="text-white">Tus videoconferencias</h2>
+        <div class="w-100 d-flex justify-content-between align-items-center">
+            <h2 class="text-white m-0">Tus videoconferencias</h2>
+            <button class="btn bg-primary-custom text-white d-md-none d-flex justify-content-center align-items-center gap-2 bg-transparent border-2 border-gray" style="height: fit-content" (click)="mostrarContactos = !mostrarContactos">
+                <i class="bi bi-people-fill"></i>
+            </button>
+        </div>
         <div class="videocall-container w-100 gap-4" id="own-calls-container">
 
             @for (call of calls(); track call.roomId) {
@@ -23,62 +32,74 @@
 
         </div>
     </div>
-    <aside class="contact-container d-flex flex-column gap-1">
-        <h2 class="text-white">Contactos</h2>
-        <form class="form-inline d-flex flex-row mb-2" [formGroup]="userFavoriteForm" (submit)="onSubmitUserFavoriteForm()">
-            <div class="form-group w-100">
-                <input type="email" class="form-control rounded-0 rounded-start" id="user-favorite-input" placeholder="Email" formControlName="email">
-            </div>
-            <button type="submit" class="btn btn-primary button-primary rounded-0 rounded-end">Añadir</button>
-        </form>
 
-        @for (user of contacts(); track user.userId) {
+    <aside class="offcanvas-md offcanvas-end contact-container bg-dark text-white w-100 w-md-auto flex-column gap-1" 
+       tabindex="-1" 
+       id="offcanvasContactos"
+       [class.show]="mostrarContactos">
 
-            <div class="d-flex flex-row align-items-md-center justify-content-between border-bottom border-2 border-gray py-2 contact">
-                <span class="text-white">{{user.email}}</span>
-                <i class="bi bi-trash-fill text-white" (click)="deleteUserFavorite(user.userId)"></i>
-            </div>
+        <div class="offcanvas-header d-md-none border-bottom border-gray">
+            <h5 class="offcanvas-title text-white">Contactos</h5>
+            <button type="button" class="btn-close btn-close-white" (click)="mostrarContactos = false" aria-label="Close"></button>
+        </div>
 
-        }
-        
+        <div class="offcanvas-body d-flex flex-column gap-1 p-3 p-md-0">
+            <h2 class="text-white d-none d-md-block">Contactos</h2>
+            
+            <form class="form-inline d-flex flex-row mb-2" [formGroup]="userFavoriteForm" (submit)="onSubmitUserFavoriteForm()">
+                <div class="form-group w-100">
+                    <input type="email" class="form-control rounded-0 rounded-start" id="user-favorite-input" placeholder="Email" formControlName="email">
+                </div>
+                <button type="submit" class="btn btn-primary bg-primary-custom rounded-0 rounded-end">Añadir</button>
+            </form>
+
+            @for (user of contacts(); track user.userId) {
+                <div class="d-flex flex-row align-items-md-center justify-content-between border-bottom border-2 border-gray py-2 contact">
+                    <span class="text-white">{{user.email}}</span>
+                    <i class="bi bi-trash-fill text-white cursor-pointer" (click)="deleteUserFavorite(user.userId)"></i>
+                </div>
+            }
+        </div>
     </aside>
 </div>
 
 @if (formCreateCallPopupEnabled){
     <popup-component>
-        <form class="position-relative p-5 d-flex flex-column justify-content-center align-items-center gap-3 bg-light-black rounded border border-3 border-gray w-50" id="creationCallForm" [formGroup]="creationCallForm" (submit)="onSubmitUserFavoriteForm()">
-            <h2 class="text-white">Creación de videoconferencia</h2>
+        <div class="p-4">
+            <form class="position-relative p-5 d-flex flex-column justify-content-center align-items-center gap-3 bg-light-black rounded border border-3 border-gray w-100" id="creationCallForm" [formGroup]="creationCallForm" (submit)="onSubmitUserFavoriteForm()">
+                <h2 class="text-white">Creación de videoconferencia</h2>
 
-            <div class="form-group w-100">
-                <label for="nameInputFormCall" class="text-white">Nombre de la videoconferencia</label>
-                <input type="text" class="form-control" id="nameInputFormCall" placeholder="Nombre" formControlName="name">
-            </div>
-
-            <div class="form-group w-100">
-                <label for="nameInputFormCall" class="text-white">Invitaciones</label>
-
-                <form class="d-flex flex-row" [formGroup]="invitationForm">
-                    <input type="text" class="form-control rounded-0 rounded-start" id="nameInputFormCall" placeholder="Email" formControlName="email">
-                    <button class="btn button-primary text-white rounded-0 rounded-end" (click)="addEmail()">Añadir</button>
-                </form>
-            </div>
-
-            @if (emailInvitations().size !== 0){
-
-                <div class="container-emails w-100 rounded p-2 d-flex flex-wrap gap-2">
-                    @for (email of emailInvitations(); track email) {
-                        <div class="d-flex flex-row align-items-center bg-light-black rounded p-2 gap-2 min-content">
-                            <span class="text-white">{{email}}</span>
-                            <i class="bi bi-x-lg text-white d-flex cursor-pointer" (click)="removeEmailFromForm(email)"></i>
-                        </div>
-                    }
+                <div class="form-group w-100">
+                    <label for="nameInputFormCall" class="text-white">Nombre de la videoconferencia</label>
+                    <input type="text" class="form-control" id="nameInputFormCall" placeholder="Nombre" formControlName="name">
                 </div>
 
-            }
-            
-            <button type="submit" class="btn button-primary text-white rounded w-100" (click)="createCall()">Crear</button>
+                <div class="form-group w-100">
+                    <label for="nameInputFormCall" class="text-white">Invitaciones</label>
 
-            <i class="bi bi-x-lg text-white position-absolute top-0 end-0 m-3 d-flex cursor-pointer" (click)="formCreateCallPopupEnabled = false"></i>
-        </form>
+                    <form class="d-flex flex-row" [formGroup]="invitationForm">
+                        <input type="text" class="form-control rounded-0 rounded-start" id="nameInputFormCall" placeholder="Email" formControlName="email">
+                        <button class="btn bg-primary-custom text-white rounded-0 rounded-end" (click)="addEmail()">Añadir</button>
+                    </form>
+                </div>
+
+                @if (emailInvitations().size !== 0){
+
+                    <div class="container-emails w-100 rounded p-2 d-flex flex-wrap gap-2">
+                        @for (email of emailInvitations(); track email) {
+                            <div class="d-flex flex-row align-items-center bg-light-black rounded p-2 gap-2 min-content">
+                                <span class="text-white text-truncate d-inline-block" style="max-width: 180px;">{{email}}</span>
+                                <i class="bi bi-x-lg text-white d-flex cursor-pointer" (click)="removeEmailFromForm(email)"></i>
+                            </div>
+                        }
+                    </div>
+
+                }
+                
+                <button type="submit" class="btn bg-primary-custom text-white rounded w-100" (click)="createCall()">Crear</button>
+
+                <i class="bi bi-x-lg text-white position-absolute top-0 end-0 m-3 d-flex cursor-pointer" (click)="formCreateCallPopupEnabled = false"></i>
+            </form>
+        </div>
     </popup-component>
 }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { VideoCallService } from '../../../services/video-call-service';
+import { HeaderService } from '../../../services/header-service';
 
 @Component({
     selector: 'video-call-lobby-page',
@@ -12,10 +13,13 @@ export class VideoCallLobbyPage {
 
     constructor(
         private router: Router,
-        private videocall: VideoCallService
+        private videocall: VideoCallService,
+        private headerService: HeaderService
     ){}
 
     ngOnInit(){
+
+        this.headerService.hide();
 
         this.videocall.getMessagingServiceStatus().subscribe({
             next: (value) => {

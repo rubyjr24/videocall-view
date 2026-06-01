@@ -13,6 +13,7 @@ import { ErrorCodes } from '../../../enums/error-codes';
 import { PopupComponent } from "../../common/popup-component/popup-component";
 import { RoomRequest } from '../../../interfaces/requests/room-request';
 import { Subscription } from 'rxjs';
+import { NgClass } from '@angular/common';
 
 @Component({
     selector: 'home-page',
@@ -65,6 +66,8 @@ export class HomePage {
                 ]
             })
         });
+
+    mostrarContactos: boolean = false;
 
     constructor(
         private videoCall: VideoCallService,
@@ -206,6 +209,7 @@ export class HomePage {
     }
 
     onSubmitUserFavoriteForm() {
+        //todo: comprobar que el email no es el mismo que el suyo
         if (this.userFavoriteForm.valid) this.createContact();
     }
 

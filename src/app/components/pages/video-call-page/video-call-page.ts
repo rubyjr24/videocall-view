@@ -3,8 +3,10 @@ import { AuthService } from '../../../services/auth-service';
 import { RxStompService } from '../../../services/messaging/rx-stomp-service';
 import { VideoCallService } from '../../../services/video-call-service';
 import { SignalMessage } from '../../../interfaces/signal-message';
-import { KeyValuePipe, NgStyle } from '@angular/common';
+import { KeyValuePipe, NgStyle, NgClass } from '@angular/common';
 import { SelectorDeviceComponent } from './components/selector-device-component/selector-device-component';
+import { Router } from '@angular/router';
+import { HeaderService } from '../../../services/header-service';
 
 @Component({
     selector: 'video-call-page',
@@ -85,16 +87,31 @@ export class VideoCallPage {
 
     pendingIceCandidates = new Map<string, RTCIceCandidateInit[]>();
 
+    hiddenSelectAudioDevices:boolean = true;
+    hiddenSelectCamDevices:boolean = true;
+
+    toggleSelectAudioDevices(){
+        this.hiddenSelectAudioDevices = !this.hiddenSelectAudioDevices;
+        this.hiddenSelectCamDevices = true;
+    }
+
+    toggleSelectCamDevices(){
+        this.hiddenSelectCamDevices = !this.hiddenSelectCamDevices;
+        this.hiddenSelectAudioDevices = true;
+    }
+
     constructor(
         private auth: AuthService,
         private client: RxStompService,
-        private videocall: VideoCallService
+        private videocall: VideoCallService,
+        private router: Router,
+        private headerService: HeaderService
     ) { }
 
     async ngOnInit() {
-        
-        this.client.connect(); // Cambiar e implementar todo dentro de videocall
+        this.headerService.hide();
 
+        this.client.connect(); // Cambiar e implementar todo dentro de videocall
         this.userId = this.auth.authData()!.userId.toString();
         this.roomId = this.videocall.roomId!;
         await this.loadDevices();
@@ -104,10 +121,6 @@ export class VideoCallPage {
     }
 
     ngOnDestroy() {
-
-        // Mandar que el usuario se ha ido de la sala
-        this.peers().forEach(pc => pc.close());
-        this.localStream()?.getTracks().forEach(t => t.stop());
         this.leftRoom();
     }
 
@@ -150,15 +163,19 @@ export class VideoCallPage {
     }
 
     leftRoom() {
-
-        this.peers().forEach((p) => {
-            p.close();
-        })
+        
+        this.peers().forEach(pc => pc.close());
+        this.localStream()?.getTracks().forEach(t => t.stop());
 
         this.client.publish(`/api/room/${this.roomId}/signal`, {
             type: 'user-left',
             roomId: this.roomId,
         });
+    }
+
+    onClickLeftButton(){
+        this.leftRoom();
+        this.router.navigate(['/home']);
     }
 
     // =============================
@@ -499,10 +516,6 @@ export class VideoCallPage {
 
         videos.forEach(async (video: HTMLVideoElement) => {
 
-            console.log(this.localVideo?.nativeElement)
-            console.log(video)
-
-
             if (this.localVideo && video == this.localVideo.nativeElement) return;
 
             try {
@@ -541,7 +554,6 @@ export class VideoCallPage {
                 this.localStream()?.getTracks().filter((t) => t.kind === deviceType).forEach((t) => t.stop());
 
                 this.localStream.set(await this.createMediaStream());
-                console.log("LocalStream: ", this.localStream())
                 if (!this.localStream()) return;
 
                 this.localStream()!.getTracks().forEach((track) => {
