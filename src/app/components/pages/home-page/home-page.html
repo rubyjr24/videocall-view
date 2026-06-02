@@ -77,9 +77,25 @@
                 <div class="form-group w-100">
                     <label for="nameInputFormCall" class="text-white">Invitaciones</label>
 
-                    <form class="d-flex flex-row" [formGroup]="invitationForm">
-                        <input type="text" class="form-control rounded-0 rounded-start" id="nameInputFormCall" placeholder="Email" formControlName="email">
-                        <button class="btn bg-primary-custom text-white rounded-0 rounded-end" (click)="addEmail()">Añadir</button>
+                    <form class="position-relative d-flex flex-column" [formGroup]="invitationForm">
+                        <div class="d-flex flex-row">
+                            <input type="text" class="form-control rounded-0 rounded-start" id="nameInputFormCall" placeholder="Email" formControlName="email" (input)="onChangeEmailCreationVideocall($event.target.value)" autocomplete="off">
+                            <button class="btn bg-primary-custom text-white rounded-0 rounded-end" (click)="addEmail()">Añadir</button>
+                        </div>
+                        <div>
+                            @if (filteredContacts().length > 0 && enabledSuggestionContacts) {
+                                <ul class="list-group position-absolute w-100 shadow" style="top: 100%; left: 0; z-index: 1000;">
+                                    @for (contact of filteredContacts(); track contact.userId) {
+                                        <li class="list-group-item list-group-item-action cursor-pointer bg-light-black text-white border-gray" 
+                                            (click)="onClickInSuggetionContactItem(contact.email)">
+                                            {{ contact.email }}
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+
+
                     </form>
                 </div>
 
@@ -98,7 +114,7 @@
                 
                 <button type="submit" class="btn bg-primary-custom text-white rounded w-100" (click)="createCall()">Crear</button>
 
-                <i class="bi bi-x-lg text-white position-absolute top-0 end-0 m-3 d-flex cursor-pointer" (click)="formCreateCallPopupEnabled = false"></i>
+                <i class="bi bi-x-lg text-white position-absolute top-0 end-0 m-3 d-flex cursor-pointer" (click)="onCloseCreationCall()"></i>
             </form>
         </div>
     </popup-component>

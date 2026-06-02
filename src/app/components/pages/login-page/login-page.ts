@@ -93,7 +93,6 @@ export class LoginPage {
         if (this.loginForm.valid) {
             this.auth.login(this.loginForm.getRawValue()).subscribe({
                 next: (res: LoginResponse) => {
-                    localStorage.setItem('auth', JSON.stringify(res));
                     this.router.navigate(['/home']);
                 },
                 error: (err) => {
@@ -107,7 +106,6 @@ export class LoginPage {
         if (this.signUpForm.valid) {
             this.auth.signUp(this.signUpForm.getRawValue()).subscribe({
                 next: (res: LoginResponse) => {
-                    localStorage.setItem('auth', JSON.stringify(res));
                     this.router.navigate(['/home']);
                 },
                 error: (err) => {

@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { VideoCallService } from '../../../services/video-call-service';
 import { ToastService } from '../../../services/toast-service';
 import { Router } from '@angular/router';
@@ -14,6 +14,7 @@ import { PopupComponent } from "../../common/popup-component/popup-component";
 import { RoomRequest } from '../../../interfaces/requests/room-request';
 import { Subscription } from 'rxjs';
 import { NgClass } from '@angular/common';
+import { AuthService } from '../../../services/auth-service';
 
 @Component({
     selector: 'home-page',
@@ -38,7 +39,8 @@ export class HomePage {
                 validators: [
                     Validators.required,
                     Validators.maxLength(256),
-                    Validators.email
+                    Validators.email,
+                    Validators.minLength(1)
                 ]
             })
         });
@@ -50,7 +52,8 @@ export class HomePage {
                 validators: [
                     Validators.required,
                     Validators.maxLength(256),
-                    Validators.email
+                    Validators.email,
+                    Validators.minLength(1)
                 ]
             }),
         });
@@ -62,12 +65,30 @@ export class HomePage {
                 validators: [
                     Validators.required,
                     Validators.maxLength(256),
-                    Validators.email
+                    Validators.email,
+                    Validators.minLength(1)
                 ]
             })
         });
 
     mostrarContactos: boolean = false;
+    emailSearchTerm = signal('');
+
+    filteredContacts = computed(() => {
+        const term = (this.emailSearchTerm() || '').toLowerCase();
+        if (!term || term === '') return [];
+        
+        const currentInvitations = this.emailInvitations();
+        
+        return this.contacts()
+            .filter(contact => 
+                contact.email.toLowerCase().includes(term) && 
+                !currentInvitations.has(contact.email)
+            )
+            .slice(0, 3);
+    });
+
+    enabledSuggestionContacts: boolean = true;
 
     constructor(
         private videoCall: VideoCallService,
@@ -75,6 +96,7 @@ export class HomePage {
         private router: Router,
         private header: HeaderService,
         private user: UserService,
+        private auth: AuthService,
     ) { }
 
     ngOnInit() {
@@ -96,6 +118,19 @@ export class HomePage {
         this.formCreateCallPopupEnabled = true;
     }
 
+    onCloseCreationCall(){
+        this.resetPopupCreationCall();
+    }
+
+    private resetPopupCreationCall(){
+        this.emailInvitations.set(new Set());
+        this.enabledSuggestionContacts = true;
+        this.creationCallForm.controls.name.setValue('');
+        this.invitationForm.controls.email.setValue('');
+        this.emailSearchTerm.set('');
+        this.formCreateCallPopupEnabled = false
+    }
+
     createCall() {
 
         const data: RoomRequest = {
@@ -107,6 +142,7 @@ export class HomePage {
             next: (room: RoomResponse) => {
                 this.formCreateCallPopupEnabled = false;
                 this.calls.update(currentCalls => [room, ...currentCalls]);
+                this.resetPopupCreationCall();
                 this.toast.show(`Se ha creado correctamente la sala ${room.name}`);
             },
             error: (err: HttpErrorResponse) => {
@@ -138,7 +174,6 @@ export class HomePage {
 
         this.videoCall.getInvitations().subscribe({
             next: (res: RoomResponse[]) => {
-                console.log(res)
                 this.invitations.set(res);
             },
             error: (err: HttpErrorResponse) => {
@@ -179,7 +214,25 @@ export class HomePage {
         });
     }
 
+    onClickInSuggetionContactItem(email: string){
+        this.enabledSuggestionContacts = false;
+        this.invitationForm.controls.email.setValue(email);
+        this.addEmail();
+        this.invitationForm.controls.email.setValue('');
+    }
+
+    onChangeEmailCreationVideocall(email: string){
+        this.emailSearchTerm.set(email);
+        this.enabledSuggestionContacts = true;
+    }
+
     private createContact() {
+
+        if (this.userFavoriteForm.getRawValue().email === this.auth.authData()?.email){
+            this.toast.show("No puedes poner tu email como contacto")
+            return;
+        }
+
         this.user.createContact(this.userFavoriteForm.getRawValue()).subscribe({
             next: (res: UserResponse) => {
                 this.contacts.update(currentContacts => [res, ...currentContacts]);

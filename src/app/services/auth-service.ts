@@ -29,7 +29,10 @@ export class AuthService {
 			payload
 		).pipe(
             tap((auth) => {
-                if (this.isAuthValid(auth)) this._authState.set(auth);
+                if (this.isAuthValid(auth)) {
+					this._authState.set(auth);
+                    localStorage.setItem('auth', JSON.stringify(auth));
+				}
             })
         );
 	}
@@ -40,7 +43,10 @@ export class AuthService {
 			payload
 		).pipe(
             tap((auth) => {
-                if (this.isAuthValid(auth)) this._authState.set(auth);
+                if (this.isAuthValid(auth)) {
+					this._authState.set(auth);
+                    localStorage.setItem('auth', JSON.stringify(auth));
+				}
             })
         );
 	}
