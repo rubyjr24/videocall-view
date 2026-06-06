@@ -25,21 +25,24 @@ export class VideoCallPage {
 
         const isEnabled = this.isMicEnabled();
         untracked(() => this.toggleDevice(isEnabled, 'audio'));
+        this.sendAudioStatus();
     });
     private onIsCamEnabledEffect = effect(() => {
         console.log("onIsCamEnabledEffect")
         const isEnabled = this.isCamEnabled();
         untracked(() => this.toggleDevice(isEnabled, 'video'));
+        this.sendVideoStatus();
     });
 
     roomId!:number;
     userId!:string;
     userName!: string;
 
-    userNames: Map<string, string> = new Map();
+    userNames: WritableSignal<Map<string, string>> = signal(new Map());
     localStream = signal<MediaStream | undefined>(undefined);
     peers: WritableSignal<Map<string, RTCPeerConnection>> = signal(new Map());
     remoteStreams: WritableSignal<Map<string, MediaStream[]>> = signal(new Map());
+    usersStreamState: WritableSignal<Map<string, [boolean, boolean]>> = signal(new Map());
 
     iceConfig: RTCConfiguration = {
         iceServers: [
@@ -117,8 +120,13 @@ export class VideoCallPage {
         this.client.connect(); // Cambiar e implementar todo dentro de videocall
         this.userId = this.auth.authData()!.userId.toString();
         this.userName = this.auth.authData()!.name;
-        console.log(this.userName)
-        this.roomId = this.videocall.roomId!;
+        this.roomId = this.videocall.roomId ?? parseInt(localStorage.getItem('roomId') ?? "-1");
+
+        if (this.roomId == -1){
+            this.onClickLeftButton();
+            return;
+        }
+
         await this.loadDevices();
         await this.initMedia();
         this.listenSocket();
@@ -132,8 +140,8 @@ export class VideoCallPage {
     @HostListener('window:beforeunload', ['$event'])
     unloadHandler(event: Event) {
         this.leftRoom();
-        event.returnValue = false; 
-        return false;
+        event.returnValue = true; // compatibilidad
+        return true;
     }
 
 
@@ -179,7 +187,6 @@ export class VideoCallPage {
     }
 
     leftRoom() {
-        
         this.peers().forEach(pc => pc.close());
         this.localStream()?.getTracks().forEach(t => t.stop());
 
@@ -191,6 +198,7 @@ export class VideoCallPage {
 
     onClickLeftButton(){
         this.leftRoom();
+        localStorage.removeItem('roomId');
         this.router.navigate(['/home']);
     }
 
@@ -211,13 +219,37 @@ export class VideoCallPage {
         });
     }
 
+    private sendAudioStatus(){
+        this.client.publish(`/api/room/${this.roomId}/signal`, {
+            type: `${this.isMicEnabled() ? 'user-audio-enabled' : 'user-audio-disabled'}`,
+            roomId: this.roomId,
+        });
+    }
+
+    private sendVideoStatus(){
+         this.client.publish(`/api/room/${this.roomId}/signal`, {
+            type: `${this.isCamEnabled() ? 'user-video-enabled' : 'user-video-disabled'}`,
+            roomId: this.roomId,
+        });
+    }
+
     private async manageMessage(message:SignalMessage){
 
         switch (message.type) {
 
             case 'join':
-                this.userNames.set(message.from, message.payload.name);
+                
+                this.userNames.update(
+                    current => {
+                        const map = new Map(current);
+                        map.set(message.from, message.payload.name);
+                        return map;
+                    }
+                );
+
                 await this.createPeerConnection(message.from, true);
+                this.sendAudioStatus();
+                this.sendVideoStatus();
                 break;
 
             case 'offer':
@@ -233,8 +265,60 @@ export class VideoCallPage {
                 break;
 
             case 'user-left':
-                this.userNames.delete(message.from);
+                this.userNames.update(
+                    current => {
+                        const map = new Map(current);
+                        map.delete(message.from);
+                        return map;
+                    }
+                );
                 this.removePeer(message.from!);
+                break;
+            
+            case 'user-audio-enabled':
+                this.usersStreamState.update(
+                    current => {
+                        const map = new Map(current);
+                        const lastValues = map.get(message.from) ?? [false, false];
+                        lastValues[0] = true;
+                        map.set(message.from, lastValues);
+                        return map;
+                    }
+                );
+                break;
+            
+            case 'user-audio-disabled':
+                this.usersStreamState.update(
+                    current => {
+                        const map = new Map(current);
+                        const lastValues = map.get(message.from) ?? [false, false];
+                        lastValues[0] = false;
+                        map.set(message.from, lastValues);
+                        return map;
+                    }
+                );
+                break;
+            case 'user-video-enabled':
+                this.usersStreamState.update(
+                    current => {
+                        const map = new Map(current);
+                        const lastValues = map.get(message.from) ?? [false, false];
+                        lastValues[1] = true;
+                        map.set(message.from, lastValues);
+                        return map;
+                    }
+                );
+                break;
+            case 'user-video-disabled':
+                this.usersStreamState.update(
+                    current => {
+                        const map = new Map(current);
+                        const lastValues = map.get(message.from) ?? [false, false];
+                        lastValues[1] = false;
+                        map.set(message.from, lastValues);
+                        return map;
+                    }
+                );
                 break;
         }
     }
@@ -247,6 +331,7 @@ export class VideoCallPage {
         if (this.peers().has(remoteUserId)) return;
 
         const pc = new RTCPeerConnection(this.iceConfig);
+
         this.peers.update(
             current => {
                 const map = new Map(current);
@@ -260,6 +345,14 @@ export class VideoCallPage {
                 pc.addTrack(track, this.localStream()!);
             });
         }
+
+        this.usersStreamState.update(
+            current => {
+                const map = new Map(current);
+                map.set(remoteUserId, [false, false]);
+                return map;
+            }
+        );
 
         // Cuando llegue stream remoto
         pc.ontrack = (event) => {
@@ -280,6 +373,15 @@ export class VideoCallPage {
 
                 return map;
             });
+
+            this.usersStreamState.update(
+                current => {
+                    const map = new Map(current);
+                    const lastValues = map.get(remoteUserId) ?? [false, false];
+                    map.set(remoteUserId, [event.track.kind === 'audio' ? true : lastValues[0], event.track.kind === 'video' ? true : lastValues[1]]);
+                    return map;
+                }
+            );
         };
 
         // ICE
@@ -343,15 +445,16 @@ export class VideoCallPage {
         await this.createPeerConnection(message.from, false);
 
         const pc = this.peers().get(message.from)!;
+
+        if (pc.signalingState !== 'stable') {
+            return;
+        }
         
         await pc.setRemoteDescription(new RTCSessionDescription(message.payload.data));
 
         await this.flushIceCandidates(message.from, pc);
 
-        const answer = await pc.createAnswer({
-            offerToReceiveAudio: true,
-            offerToReceiveVideo: true
-        });
+        const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
 
         this.client.publish(`/api/room/${this.roomId}/signal`, {
@@ -371,6 +474,16 @@ export class VideoCallPage {
         
         const pc = this.peers().get(message.from);
         if (!pc) return;
+
+        if (pc.signalingState === 'stable') {
+            console.warn('La conexión ya está estable. Ignorando respuesta duplicada.');
+            return;
+        }
+        
+        if (pc.signalingState !== 'have-local-offer') {
+            console.error('No se puede aplicar una respuesta si no hay una oferta local previa.');
+            return;
+        }
 
         await pc.setRemoteDescription(new RTCSessionDescription(message.payload.data));
 
@@ -397,7 +510,7 @@ export class VideoCallPage {
         const candidate = new RTCIceCandidate(message.payload.data);
 
         // Si ya tenemos la descripción remota, lo añadimos directamente
-        if (pc.remoteDescription) {
+        if (pc.remoteDescription && pc.signalingState !== 'closed') {
             try {
                 await pc.addIceCandidate(candidate);
             } catch (error) {
@@ -432,7 +545,6 @@ export class VideoCallPage {
     // 8️⃣ Remover peer
     // =============================
     removePeer(userId: string) {
-        console.log(`removePeer ${userId}`)
         const pc = this.peers().get(userId);
         if (pc) {
             pc.close();
@@ -442,14 +554,28 @@ export class VideoCallPage {
                     map.delete(userId);
                     return map;
                 }
-            )
+            );
             this.remoteStreams.update(
                 current => {
                     const map = new Map(current);
                     map.delete(userId);
                     return map;
                 }
-            )
+            );
+            this.usersStreamState.update(
+                current => {
+                    const map = new Map(current);
+                    map.delete(userId);
+                    return map;
+                }
+            );
+            this.userNames.update(
+                current => {
+                    const map = new Map(current);
+                    map.delete(userId);
+                    return map;
+                }
+            );
         }
 
         this.pendingIceCandidates.delete(userId);

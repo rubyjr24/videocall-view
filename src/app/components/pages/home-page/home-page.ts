@@ -317,6 +317,8 @@ export class HomePage {
     onClickVideoCall(roomId: number) {
         this.videoCall.roomId = roomId;
 
+        localStorage.setItem('roomId', roomId.toString());
+
         this.unsubscribeTopics();
 
         this.router.navigate(['lobby']);
@@ -340,7 +342,7 @@ export class HomePage {
             this.videoCall.onDeleteCall()!.subscribe({
                 next: (invitationDeleted: RoomResponse) => {
                     this.invitations.update(invitations => invitations.filter(invitation => invitation.roomId !== invitationDeleted.roomId));
-                    this.toast.show(this.trasnlocoService.translate('room.toast.ownerDeleteRoom', {
+                    this.toast.show(this.trasnlocoService.translate('home.toast.ownerDeleteRoom', {
                         name: invitationDeleted.name
                     }));
                 },

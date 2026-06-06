@@ -61,8 +61,12 @@ export class VideoCallService {
     }
 
     joinCall(){
+        const roomId = this.roomId ?? localStorage.getItem('roomId');
+
+        if (roomId == undefined) throw Error('a')
+
         return this.http.get<RoomResponse>(
-            `${this.config.apiUrl}/videocall/${this.roomId}/join`
+            `${this.config.apiUrl}/videocall/${roomId}/join`
         );
     }
 
