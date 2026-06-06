@@ -6,10 +6,11 @@ import { LoginResponse } from '../../../interfaces/responses/login-response';
 import { ToastService } from '../../../services/toast-service';
 import { NgClass } from '@angular/common';
 import { HeaderService } from '../../../services/header-service';
+import { TranslocoDirective, TranslocoService } from '@ngneat/transloco';
 
 @Component({
     selector: 'login-page',
-    imports: [ReactiveFormsModule, NgClass],
+    imports: [ReactiveFormsModule, NgClass, TranslocoDirective],
     templateUrl: './login-page.html',
     styleUrl: './login-page.css',
 })
@@ -68,7 +69,8 @@ export class LoginPage {
         private router: Router,
         private auth: AuthService,
         private toast: ToastService,
-        private headerService: HeaderService
+        private headerService: HeaderService,
+        private translocoService: TranslocoService
     ) { }
 
     ngOnInit(){
@@ -96,7 +98,7 @@ export class LoginPage {
                     this.router.navigate(['/home']);
                 },
                 error: (err) => {
-                    this.toast.show("El usuario o la contraseña son incorrectas");
+                    this.toast.show(this.translocoService.translate('login.toast.errorUserOrPasswordIncorrect'));
                 }
             });
         }
@@ -109,7 +111,7 @@ export class LoginPage {
                     this.router.navigate(['/home']);
                 },
                 error: (err) => {
-                    this.toast.show("No se ha podido crear el usuario correctamente");
+                    this.toast.show(this.translocoService.translate('login.toast.errorCreatingUser'));
                 }
             });
         }

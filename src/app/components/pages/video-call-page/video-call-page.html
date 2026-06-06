@@ -1,67 +1,71 @@
-<div class="h-100 w-100 d-flex gap-0 flex-column bg-light-black" style="max-height: 100vh;">
-    <div #videocallsContainer class="videocalls w-100 h-100 d-flex flex-column d-sm-grid gap-3 p-4 pb-0" [ngStyle]="{ 'grid-template-columns': `repeat(${columnsGridVideocallContainer()}, 1fr)` }" style="max-height: 100%;">
-        <div class="video-cam-card d-flex justify-content-center align-items-stretch rounded shadow-lg w-100 ratio ratio-1x1" style="max-height: 100vh;">
-            @if (this.isCamEnabled()){
-              <video #localVideo [srcObject]="localStream()" autoplay muted playsinline class="w-100 h-100 mw-100 object-fit-contain"></video>
-            }@else{
-              <img src="./assets/imgs/avatar.png" alt="Avatar" class="mw-100 w-100 h-100 object-fit-contain">
-            }
-        </div>
+<ng-container *transloco="let t">
+    <div class="h-100 w-100 d-flex gap-0 flex-column bg-light-black" style="max-height: 100%;">
+        <div #videocallsContainer class="position-relative videocalls w-100 h-100 d-grid gap-3 p-4 pb-0 row-cols-1" [ngStyle]="{ 'grid-template-columns': `repeat(auto-fit, ${columnsGridVideocallContainer()}, 1fr)` }" style="max-height: 100%;">
+            <div class="video-cam-card d-flex justify-content-center align-items-stretch rounded shadow-lg w-100 position-relative" style="max-height: 100%;">
+                @if (this.isCamEnabled()){
+                    <video #localVideo [srcObject]="localStream()" autoplay muted playsinline class="w-100 h-100 mw-100 object-fit-contain"></video>
+                }@else{
+                    <img src="./assets/imgs/avatar.png" alt="Avatar" class="object-fit-contain mw-100">
+                }
+                <div class="user-label position-absolute" style="bottom: 5px; left: 5px;">
+                    <span class="text-light">{{ userName }}</span>
+                </div>
+            </div>
 
-        @for (streams of remoteStreams() | keyvalue; track streams.key) {
+            @for (streams of remoteStreams() | keyvalue; track streams.key) {
 
-            @for (stream of streams.value; track stream.id) {
-                <div class="video-cam-card d-flex justify-content-center align-items-center rounded shadow-lg w-100 h-100 position-relative ratio ratio-1x1">
+                @for (stream of streams.value; track stream.id) {
+                    <div class="video-cam-card d-flex justify-content-center align-items-center rounded shadow-lg w-100 h-100 position-relative object-fit-cover" >
 
-                    @if(stream.getVideoTracks().length && stream.active){
-                        <video [srcObject]="stream" autoplay playsinline class="mw-100 w-100 h-100 object-fit-cover"></video>
-                        <div class="position-relative">
-                            <div class="user-label position-absolute" style="bottom: 5px; left: 5px;">
-                                <span class="text-light">Usuario: {{ streams.key }}</span>
-                            </div>
+                        @if(stream.getVideoTracks().length && stream.active){
+                            <video [srcObject]="stream" autoplay playsinline class="mw-100 w-100 h-100 object-fit-cover"></video>
+                        }@else{
+                            <img src="./assets/imgs/avatar.png" alt="Avatar" class="object-fit-contain mw-100 mh-100">
+                        }
+
+                        <div class="user-label position-absolute" style="bottom: 5px; left: 5px;">
+                            <span class="text-light">{{ userNames.get(streams.key) }}</span>
                         </div>
-                    }@else{
-                        <img src="./assets/imgs/avatar.png" alt="Avatar" class="mw-100 w-100 h-100 object-fit-contain">
-                    }
 
-                </div>
+                    </div>
+                }
             }
-        }
-    </div>
-    <div class="p-3 d-flex justify-content-center align-items-center gap-3">
-        <div class="position-relative d-flex flex-row border border-1 border-light rounded">
-            @if(!this.hiddenSelectAudioDevices){
-                <div class="position-absolute translate-middle-x start-50 d-flex flex-row gap-4 justify-content-center align-content-center" style="bottom: 120%; width: 75vw;">
-                    <selector-device-component [(device)]="microphone" [devices]="microphones()"/>
-                    <selector-device-component [(device)]="speaker" [devices]="speakers()"/>
-                </div>
-            }
-            <button class="btn bg-light-black border-0" (click)="this.toggleSelectAudioDevices()">
-                <i class="bi bi-caret-up-fill text-light fs-6"></i>
-            </button>
-            <button class="btn bg-light-black border-1 border-light border-end-0 border-top-0 border-bottom-0" (click)="this.isMicEnabled.set(!this.isMicEnabled())">
-                <i class="bi text-light fs-4" [class.bi-mic-fill]="this.isMicEnabled()" [class.bi-mic-mute-fill]="!this.isMicEnabled()"></i>
+        </div>
+        <div class="p-3 d-flex justify-content-center align-items-center gap-3">
+            <div class="position-relative d-flex flex-row border border-1 border-light rounded">
+                @if(!this.hiddenSelectAudioDevices){
+                    <div class="position-absolute translate-middle-x start-50 d-flex flex-row gap-4 justify-content-center align-content-center" style="bottom: 120%; width: 75vw;">
+                        <selector-device-component [(device)]="microphone" [devices]="microphones()"/>
+                        <selector-device-component [(device)]="speaker" [devices]="speakers()"/>
+                    </div>
+                }
+                <button class="btn bg-light-black border-0" (click)="this.toggleSelectAudioDevices()">
+                    <i class="bi bi-caret-up-fill text-light fs-6"></i>
+                </button>
+                <button class="btn bg-light-black border-1 border-light border-end-0 border-top-0 border-bottom-0" (click)="this.isMicEnabled.set(!this.isMicEnabled())">
+                    <i class="bi text-light fs-4" [class.bi-mic-fill]="this.isMicEnabled()" [class.bi-mic-mute-fill]="!this.isMicEnabled()"></i>
+                </button>
+            </div>
+
+            <div class="position-relative d-flex flex-row border border-1 border-light rounded">
+
+                @if(!this.hiddenSelectCamDevices){
+                    <div class="position-absolute translate-middle-x start-50 d-flex flex-row gap-4 justify-content-center align-content-center" style="bottom: 120%; width: 75vw;">
+                        <selector-device-component [(device)]="camera" [devices]="cameras()"/>
+                    </div>
+                }
+
+                <button class="btn bg-light-black border-0" (click)="this.toggleSelectCamDevices()">
+                    <i class="bi bi-caret-up-fill text-light fs-6"></i>
+                </button>
+                <button class="btn bg-light-black border-1 border-light border-end-0 border-top-0 border-bottom-0" (click)="this.isCamEnabled.set(!isCamEnabled())">
+                    <i class="bi bi-camera-video-off-fill text-light fs-4" [class.bi-camera-video-fill]="this.isCamEnabled()" [class.bi-camera-video-off-fill]="!this.isCamEnabled()"></i>
+                </button>
+            </div>
+
+            <button class="btn bg-danger" (click)="this.onClickLeftButton()">
+                <i class="bi bi-telephone-fill text-light rotate fs-4"></i>
             </button>
         </div>
-
-        <div class="position-relative d-flex flex-row border border-1 border-light rounded">
-
-            @if(!this.hiddenSelectCamDevices){
-                <div class="position-absolute translate-middle-x start-50 d-flex flex-row gap-4 justify-content-center align-content-center" style="bottom: 120%; width: 75vw;">
-                    <selector-device-component [(device)]="camera" [devices]="cameras()"/>
-                </div>
-            }
-
-            <button class="btn bg-light-black border-0" (click)="this.toggleSelectCamDevices()">
-                <i class="bi bi-caret-up-fill text-light fs-6"></i>
-            </button>
-            <button class="btn bg-light-black border-1 border-light border-end-0 border-top-0 border-bottom-0" (click)="this.isCamEnabled.set(!isCamEnabled())">
-                <i class="bi bi-camera-video-off-fill text-light fs-4" [class.bi-camera-video-fill]="this.isCamEnabled()" [class.bi-camera-video-off-fill]="!this.isCamEnabled()"></i>
-            </button>
-        </div>
-
-        <button class="btn bg-danger" (click)="this.onClickLeftButton()">
-            <i class="bi bi-telephone-fill text-light rotate fs-4"></i>
-        </button>
     </div>
-</div>
+</ng-container>

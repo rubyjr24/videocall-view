@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, signal } from '@angular/core';
 import { VideoCallService } from '../../../services/video-call-service';
 import { ToastService } from '../../../services/toast-service';
@@ -13,12 +13,12 @@ import { ErrorCodes } from '../../../enums/error-codes';
 import { PopupComponent } from "../../common/popup-component/popup-component";
 import { RoomRequest } from '../../../interfaces/requests/room-request';
 import { Subscription } from 'rxjs';
-import { NgClass } from '@angular/common';
 import { AuthService } from '../../../services/auth-service';
+import { TranslocoDirective, TranslocoService } from '@ngneat/transloco';
 
 @Component({
     selector: 'home-page',
-    imports: [ReactiveFormsModule, PopupComponent],
+    imports: [ReactiveFormsModule, PopupComponent, TranslocoDirective],
     templateUrl: './home-page.html',
     styleUrl: './home-page.css',
 })
@@ -97,6 +97,7 @@ export class HomePage {
         private header: HeaderService,
         private user: UserService,
         private auth: AuthService,
+        private trasnlocoService: TranslocoService,
     ) { }
 
     ngOnInit() {
@@ -143,12 +144,14 @@ export class HomePage {
                 this.formCreateCallPopupEnabled = false;
                 this.calls.update(currentCalls => [room, ...currentCalls]);
                 this.resetPopupCreationCall();
-                this.toast.show(`Se ha creado correctamente la sala ${room.name}`);
+                this.toast.show(this.trasnlocoService.translate('home.toast.successfulRoomCreation', {
+                    name: room.name
+                }));
             },
             error: (err: HttpErrorResponse) => {
                 const errorData = err.error as ErrorResponse;
 
-                this.toast.show("Ha ocurrido un error y no se ha podido crear la videoconferencias");
+                this.toast.show(this.trasnlocoService.translate('home.toast.errorRoomCreation'));
                 console.error(errorData)
             }
         });
@@ -164,7 +167,7 @@ export class HomePage {
             error: (err: HttpErrorResponse) => {
                 const errorData = err.error as ErrorResponse;
 
-                this.toast.show("Ha ocurrido un error y no se ha podido cargar las videoconferencias");
+                this.toast.show(this.trasnlocoService.translate('error.toast.errorLoadingOwnCalls'));
                 console.error(errorData)
             }
         });
@@ -179,7 +182,7 @@ export class HomePage {
             error: (err: HttpErrorResponse) => {
                 const errorData = err.error as ErrorResponse;
 
-                this.toast.show("Ha ocurrido un error y no se ha podido cargar las invitaciones de las videoconferencias");
+                this.toast.show(this.trasnlocoService.translate('home.toast.errorLoadingInvitationCalls'));
                 console.error(errorData)
             }
         });
@@ -193,7 +196,7 @@ export class HomePage {
             error: (err: HttpErrorResponse) => {
                 const errorData = err.error as ErrorResponse;
 
-                this.toast.show("Ha ocurrido un error y no se ha podido cargar los contactos");
+                this.toast.show(this.trasnlocoService.translate('home.toast.errorLoadingContacts'));
                 console.error(errorData)
             }
         });
@@ -203,12 +206,14 @@ export class HomePage {
         this.videoCall.deleteCall(roomId).subscribe({
             next: (room: RoomResponse) => {
                 this.calls.update(currentCalls => currentCalls.filter(room => room.roomId !== roomId));
-                this.toast.show(`Se ha eliminado la sala ${room.name} correctamente`);
+                this.toast.show(this.trasnlocoService.translate('home.toast.successfulRoomDelete', {
+                    name: room.name
+                }));
             },
             error: (err: HttpErrorResponse) => {
                 const errorData = err.error as ErrorResponse;
 
-                this.toast.show("Ha ocurrido un error y no se ha podido eliminar la sala");
+                this.toast.show(this.trasnlocoService.translate('home.toast.errorDeletingRoom'));
                 console.error(errorData)
             }
         });
@@ -229,7 +234,7 @@ export class HomePage {
     private createContact() {
 
         if (this.userFavoriteForm.getRawValue().email === this.auth.authData()?.email){
-            this.toast.show("No puedes poner tu email como contacto")
+            this.toast.show(this.trasnlocoService.translate('home.toast.errorSameEmail'));
             return;
         }
 
@@ -243,15 +248,15 @@ export class HomePage {
 
                 switch (errorData.code) {
                     case ErrorCodes.USER_NOT_FOUND:
-                        this.toast.show("El email que ha introducido no pertenece a ningun usuario");
+                        this.toast.show(this.trasnlocoService.translate('home.toast.errorEmailNotFound'));
                         break;
 
                     case ErrorCodes.RESOURCE_ALREADY_EXISTS:
-                        this.toast.show("El contacto no ha sido creado porque ya lo tenia previamente en su lista de contactos");
+                        this.toast.show(this.trasnlocoService.translate('home.toast.errorContactAlreadyInContacts'));
                         break;
 
                     default:
-                        this.toast.show("Ha ocurrido un error y no se ha podido crear el contacto");
+                        this.toast.show(this.trasnlocoService.translate('home.toast.errorCreatingContact'));
                         console.error(errorData);
                         break;
                 }
@@ -278,11 +283,11 @@ export class HomePage {
 
                 switch (errorData.code) {
                     case ErrorCodes.RESOURCE_NOT_FOUND:
-                        this.toast.show("El contacto que intenta borrar no existe");
+                        this.toast.show(this.trasnlocoService.translate('home.toast.errorContactNotFoundToDelete'));
                         break;
 
                     default:
-                        this.toast.show("Ha ocurrido un error y no se ha podido eliminar el contacto");
+                        this.toast.show(this.trasnlocoService.translate('home.toast.errorDeletingContact'));
                         console.error(errorData);
                         break;
                 }
@@ -323,7 +328,9 @@ export class HomePage {
             this.videoCall.onNewCall()!.subscribe({
                 next: (invitation: RoomResponse) => {
                     this.invitations.update(invitations => [invitation, ...invitations]);
-                    this.toast.show(`Se ha añadido una invitación a la videoconferencia ${invitation.name}`);
+                    this.toast.show(this.trasnlocoService.translate('home.toast.newInvitation', {
+                        name: invitation.name
+                    }));
                 },
                 error: (data) => console.log(data)
             })
@@ -333,7 +340,9 @@ export class HomePage {
             this.videoCall.onDeleteCall()!.subscribe({
                 next: (invitationDeleted: RoomResponse) => {
                     this.invitations.update(invitations => invitations.filter(invitation => invitation.roomId !== invitationDeleted.roomId));
-                    this.toast.show(`El usuario propietario, ha eliminado la sala ${invitationDeleted.name}`);
+                    this.toast.show(this.trasnlocoService.translate('room.toast.ownerDeleteRoom', {
+                        name: invitationDeleted.name
+                    }));
                 },
                 error: (data) => console.log(data)
             })

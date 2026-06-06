@@ -3,10 +3,11 @@ import { HeaderService } from '../../../services/header-service';
 import { AuthService } from '../../../services/auth-service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../services/toast-service';
+import { TranslocoDirective, TranslocoService } from '@ngneat/transloco';
 
 @Component({
     selector: 'header-component',
-    imports: [],
+    imports: [TranslocoDirective],
     templateUrl: './header-component.html',
     styleUrl: './header-component.css',
 })
@@ -16,7 +17,8 @@ export class HeaderComponent {
         private header: HeaderService,
         private auth: AuthService,
         private router: Router,
-        private toast: ToastService
+        private toast: ToastService,
+        private translocoService: TranslocoService
     ){}
 
     isHeaderEnabled() : boolean{
@@ -30,7 +32,7 @@ export class HeaderComponent {
                 this.router.navigate(['login']);
             },
             error: () => {
-                this.toast.show("No se ha podido cerrar sesión");
+                this.toast.show(this.translocoService.translate('header.toast.errorSignOut'));
             }
         })
     }
@@ -42,7 +44,7 @@ export class HeaderComponent {
                 this.router.navigate(['login']);
             },
             error: () => {
-                this.toast.show("No se ha podido cerrar sesión");
+                this.toast.show(this.translocoService.translate('header.toast.errorDeleteAccount'));
             }
         })
     }

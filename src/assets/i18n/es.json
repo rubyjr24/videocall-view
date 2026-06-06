@@ -1,0 +1,59 @@
+{
+    "header":{
+        "title": "Callio",
+        "buttonSignOut": "Cerrar sesión",
+        "buttonDeleteAccount": "Borrar cuenta",
+        "toast": {
+            "errorSignOut": "No se ha podido cerrar sesión",
+            "errorDeleteAccount": "No se ha podido borrar su cuenta"
+        }
+    },
+    "home": {
+        "titleOwnVideocalls": "Tus videoconferencias",
+        "titleInvitations": "Invitaciones",
+        "contact":{
+            "title": "Contactos",
+            "buttonAdd": "Añadir"
+        },
+        "videocall": {
+            "title": "Creación de videoconferencia",
+            "labelInputName": "Nombre de la videoconferencia",
+            "labelInputInvitations": "Invitaciones",
+            "buttonAddInvitationEmail": "Añadir",
+            "buttonCreateCall": "Crear"
+        },
+        "toast": {
+            "successfulRoomCreation": "Se ha creado correctamente la sala {{name}}",
+            "errorRoomCreation": "Ha ocurrido un error y no se ha podido crear la videoconferencias",
+            "errorLoadingOwnCalls": "Ha ocurrido un error y no se ha podido cargar las videoconferencias",
+            "errorLoadingInvitationCalls": "Ha ocurrido un error y no se ha podido cargar las invitaciones de las videoconferencias",
+            "errorLoadingContacts": "Ha ocurrido un error y no se ha podido cargar los contactos",
+            "successfulRoomDelete": "Se ha eliminado la sala {{name}} correctamente",
+            "errorDeletingRoom": "Ha ocurrido un error y no se ha podido eliminar la sala",
+            "errorSameEmail": "No puedes poner tu email como contacto",
+            "errorEmailNotFound": "El email que ha introducido no pertenece a ningun usuario",
+            "errorContactAlreadyInContacts": "El contacto no ha sido creado porque ya lo tenia previamente en su lista de contactos",
+            "errorCreatingContact": "Ha ocurrido un error y no se ha podido crear el contacto",
+            "errorContactNotFoundToDelete": "El contacto que intenta borrar no existe",
+            "errorDeletingContact": "Ha ocurrido un error y no se ha podido eliminar el contacto",
+            "newInvitation": "Se ha añadido una invitación a la videoconferencia {{name}}",
+            "ownerDeleteRoom": "El usuario propietario, ha eliminado la sala {{name}}"
+        }
+    },
+    "login": {
+        "titleSignUp": "Registro",
+        "titleSignIn": "Inició de sesión",
+        "inputName": "Nombre",
+        "inputEmail": "Correo electrónico",
+        "inputPassword": "Contraseña",
+        "buttonSignUp": "Registrarse",
+        "buttonSignIn": "Iniciar sesión",
+        "toast": {
+            "errorUserOrPasswordIncorrect": "El usuario o la contraseña son incorrectas",
+            "errorCreatingUser": "No se ha podido crear el usuario correctamente"
+        }
+    },
+    "lobby": {
+        "buttonJoinCall": "Unirse a la videoconferencia"
+    }
+}

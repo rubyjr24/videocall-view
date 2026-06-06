@@ -1,121 +1,123 @@
-@if (mostrarContactos) {
-    <div class="offcanvas-backdrop fade show d-md-none h-100" (click)="mostrarContactos = false"></div>
-}
+<ng-container *transloco="let t">
+    @if (mostrarContactos) {
+        <div class="offcanvas-backdrop fade show d-md-none h-100" (click)="mostrarContactos = false"></div>
+    }
 
-<div class="w-100 h-100 p-4 d-flex flex-row gap-4">
-    <div class="d-flex flex-column gap-4 w-100 h-100">
-        <div class="w-100 d-flex justify-content-between align-items-center">
-            <h2 class="text-white m-0">Tus videoconferencias</h2>
-            <button class="btn bg-primary-custom text-white d-md-none d-flex justify-content-center align-items-center gap-2 bg-transparent border-2 border-gray" style="height: fit-content" (click)="mostrarContactos = !mostrarContactos">
-                <i class="bi bi-people-fill"></i>
-            </button>
+    <div class="w-100 h-100 p-4 d-flex flex-row gap-4">
+        <div class="d-flex flex-column gap-4 w-100 h-100">
+            <div class="w-100 d-flex justify-content-between align-items-center">
+                <h2 class="text-white m-0">{{ t('home.titleOwnVideocalls') }}</h2>
+                <button class="btn bg-primary-custom text-white d-md-none d-flex justify-content-center align-items-center gap-2 bg-transparent border-2 border-gray" style="height: fit-content" (click)="mostrarContactos = !mostrarContactos">
+                    <i class="bi bi-people-fill"></i>
+                </button>
+            </div>
+            <div class="videocall-container w-100 gap-4" id="own-calls-container">
+
+                @for (call of calls(); track call.roomId) {
+                    <div class="videocall-card p-3">
+                        <h3 class="text-white cursor-pointer text-center w-100 text-truncate" (click)="onClickVideoCall(call.roomId)">{{call.name}}</h3>
+                        <i class="bi bi-trash-fill text-white position-absolute top-0 end-0 p-3 d-flex cursor-pointer delete-call-icon" (click)="deleteCall(call.roomId)"></i>
+                    </div>
+                }
+                
+                <div class="videocall-card" (click)="openFormCreationCall()"><i class="bi bi-plus-circle text-white fs-1"></i></div>
+            </div>
+            <h2 class="text-white">{{ t('home.titleInvitations') }}</h2>
+            <div class="videocall-container">
+
+                @for (call of invitations(); track call.roomId) {
+                    <div class="videocall-card cursor-pointer p-3" (click)="onClickVideoCall(call.roomId)">
+                        <h3 class="text-white text-center w-100 text-truncate">{{call.name}}</h3>
+                    </div>
+                }
+
+            </div>
         </div>
-        <div class="videocall-container w-100 gap-4" id="own-calls-container">
 
-            @for (call of calls(); track call.roomId) {
-                <div class="videocall-card">
-                    <h3 class="text-white cursor-pointer" (click)="onClickVideoCall(call.roomId)">{{call.name}}</h3>
-                    <i class="bi bi-trash-fill text-white position-absolute top-0 end-0 p-3 d-flex cursor-pointer delete-call-icon" (click)="deleteCall(call.roomId)"></i>
-                </div>
-            }
-            
-            <div class="videocall-card" (click)="openFormCreationCall()"><i class="bi bi-plus-circle text-white fs-1"></i></div>
-        </div>
-        <h2 class="text-white">Invitaciones</h2>
-        <div class="videocall-container">
+        <aside class="offcanvas-md offcanvas-end contact-container bg-dark text-white w-100 w-md-auto flex-column gap-1" 
+        tabindex="-1" 
+        id="offcanvasContactos"
+        [class.show]="mostrarContactos">
 
-            @for (call of invitations(); track call.roomId) {
-                <div class="videocall-card cursor-pointer" (click)="onClickVideoCall(call.roomId)">
-                    <h3 class="text-white">{{call.name}}</h3>
-                </div>
-            }
+            <div class="offcanvas-header d-md-none border-bottom border-gray">
+                <h5 class="offcanvas-title text-white">{{ t('home.contact.title') }}</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="mostrarContactos = false" aria-label="Close"></button>
+            </div>
 
-        </div>
+            <div class="offcanvas-body d-flex flex-column gap-1 p-3 p-md-0">
+                <h2 class="text-white d-none d-md-block">{{ t('home.contact.title') }}</h2>
+                
+                <form class="form-inline d-flex flex-row mb-2" [formGroup]="userFavoriteForm" (submit)="onSubmitUserFavoriteForm()">
+                    <div class="form-group w-100">
+                        <input type="email" class="form-control rounded-0 rounded-start" id="user-favorite-input" placeholder="Email" formControlName="email">
+                    </div>
+                    <button type="submit" class="btn btn-primary bg-primary-custom rounded-0 rounded-end">{{ t('home.contact.buttonAdd') }}</button>
+                </form>
+
+                @for (user of contacts(); track user.userId) {
+                    <div class="d-flex flex-row align-items-md-center justify-content-between border-bottom border-2 border-gray py-2 contact">
+                        <span class="text-white">{{user.email}}</span>
+                        <i class="bi bi-trash-fill text-white cursor-pointer" (click)="deleteUserFavorite(user.userId)"></i>
+                    </div>
+                }
+            </div>
+        </aside>
     </div>
 
-    <aside class="offcanvas-md offcanvas-end contact-container bg-dark text-white w-100 w-md-auto flex-column gap-1" 
-       tabindex="-1" 
-       id="offcanvasContactos"
-       [class.show]="mostrarContactos">
+    @if (formCreateCallPopupEnabled){
+        <popup-component>
+            <div class="p-4">
+                <form class="position-relative p-5 d-flex flex-column justify-content-center align-items-center gap-3 bg-light-black rounded border border-3 border-gray w-100" id="creationCallForm" [formGroup]="creationCallForm" (submit)="onSubmitUserFavoriteForm()">
+                    <h2 class="text-white">{{ t('home.videocall.title') }}</h2>
 
-        <div class="offcanvas-header d-md-none border-bottom border-gray">
-            <h5 class="offcanvas-title text-white">Contactos</h5>
-            <button type="button" class="btn-close btn-close-white" (click)="mostrarContactos = false" aria-label="Close"></button>
-        </div>
+                    <div class="form-group w-100">
+                        <label for="nameInputFormCall" class="text-white">{{ t('home.videocall.labelInputName') }}</label>
+                        <input type="text" class="form-control" id="nameInputFormCall" placeholder="Nombre" formControlName="name">
+                    </div>
 
-        <div class="offcanvas-body d-flex flex-column gap-1 p-3 p-md-0">
-            <h2 class="text-white d-none d-md-block">Contactos</h2>
-            
-            <form class="form-inline d-flex flex-row mb-2" [formGroup]="userFavoriteForm" (submit)="onSubmitUserFavoriteForm()">
-                <div class="form-group w-100">
-                    <input type="email" class="form-control rounded-0 rounded-start" id="user-favorite-input" placeholder="Email" formControlName="email">
-                </div>
-                <button type="submit" class="btn btn-primary bg-primary-custom rounded-0 rounded-end">Añadir</button>
-            </form>
+                    <div class="form-group w-100">
+                        <label for="nameInputFormCall" class="text-white">{{ t('home.videocall.labelInputInvitations') }}</label>
 
-            @for (user of contacts(); track user.userId) {
-                <div class="d-flex flex-row align-items-md-center justify-content-between border-bottom border-2 border-gray py-2 contact">
-                    <span class="text-white">{{user.email}}</span>
-                    <i class="bi bi-trash-fill text-white cursor-pointer" (click)="deleteUserFavorite(user.userId)"></i>
-                </div>
-            }
-        </div>
-    </aside>
-</div>
+                        <form class="position-relative d-flex flex-column" [formGroup]="invitationForm">
+                            <div class="d-flex flex-row">
+                                <input type="text" class="form-control rounded-0 rounded-start" id="nameInputFormCall" placeholder="Email" formControlName="email" (input)="onChangeEmailCreationVideocall($event.target.value)" autocomplete="off">
+                                <button class="btn bg-primary-custom text-white rounded-0 rounded-end" (click)="addEmail()">{{ t('home.videocall.buttonAddInvitationEmail') }}</button>
+                            </div>
+                            <div>
+                                @if (filteredContacts().length > 0 && enabledSuggestionContacts) {
+                                    <ul class="list-group position-absolute w-100 shadow" style="top: 100%; left: 0; z-index: 1000;">
+                                        @for (contact of filteredContacts(); track contact.userId) {
+                                            <li class="list-group-item list-group-item-action cursor-pointer bg-light-black text-white border-gray" 
+                                                (click)="onClickInSuggetionContactItem(contact.email)">
+                                                {{ contact.email }}
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
 
-@if (formCreateCallPopupEnabled){
-    <popup-component>
-        <div class="p-4">
-            <form class="position-relative p-5 d-flex flex-column justify-content-center align-items-center gap-3 bg-light-black rounded border border-3 border-gray w-100" id="creationCallForm" [formGroup]="creationCallForm" (submit)="onSubmitUserFavoriteForm()">
-                <h2 class="text-white">Creación de videoconferencia</h2>
 
-                <div class="form-group w-100">
-                    <label for="nameInputFormCall" class="text-white">Nombre de la videoconferencia</label>
-                    <input type="text" class="form-control" id="nameInputFormCall" placeholder="Nombre" formControlName="name">
-                </div>
+                        </form>
+                    </div>
 
-                <div class="form-group w-100">
-                    <label for="nameInputFormCall" class="text-white">Invitaciones</label>
+                    @if (emailInvitations().size !== 0){
 
-                    <form class="position-relative d-flex flex-column" [formGroup]="invitationForm">
-                        <div class="d-flex flex-row">
-                            <input type="text" class="form-control rounded-0 rounded-start" id="nameInputFormCall" placeholder="Email" formControlName="email" (input)="onChangeEmailCreationVideocall($event.target.value)" autocomplete="off">
-                            <button class="btn bg-primary-custom text-white rounded-0 rounded-end" (click)="addEmail()">Añadir</button>
-                        </div>
-                        <div>
-                            @if (filteredContacts().length > 0 && enabledSuggestionContacts) {
-                                <ul class="list-group position-absolute w-100 shadow" style="top: 100%; left: 0; z-index: 1000;">
-                                    @for (contact of filteredContacts(); track contact.userId) {
-                                        <li class="list-group-item list-group-item-action cursor-pointer bg-light-black text-white border-gray" 
-                                            (click)="onClickInSuggetionContactItem(contact.email)">
-                                            {{ contact.email }}
-                                        </li>
-                                    }
-                                </ul>
+                        <div class="container-emails w-100 rounded p-2 d-flex flex-wrap gap-2">
+                            @for (email of emailInvitations(); track email) {
+                                <div class="d-flex flex-row align-items-center bg-light-black rounded p-2 gap-2 min-content">
+                                    <span class="text-white text-truncate d-inline-block" style="max-width: 180px;">{{email}}</span>
+                                    <i class="bi bi-x-lg text-white d-flex cursor-pointer" (click)="removeEmailFromForm(email)"></i>
+                                </div>
                             }
                         </div>
 
+                    }
+                    
+                    <button type="submit" class="btn bg-primary-custom text-white rounded w-100" (click)="createCall()">{{ t('home.videocall.buttonCreateCall') }}</button>
 
-                    </form>
-                </div>
-
-                @if (emailInvitations().size !== 0){
-
-                    <div class="container-emails w-100 rounded p-2 d-flex flex-wrap gap-2">
-                        @for (email of emailInvitations(); track email) {
-                            <div class="d-flex flex-row align-items-center bg-light-black rounded p-2 gap-2 min-content">
-                                <span class="text-white text-truncate d-inline-block" style="max-width: 180px;">{{email}}</span>
-                                <i class="bi bi-x-lg text-white d-flex cursor-pointer" (click)="removeEmailFromForm(email)"></i>
-                            </div>
-                        }
-                    </div>
-
-                }
-                
-                <button type="submit" class="btn bg-primary-custom text-white rounded w-100" (click)="createCall()">Crear</button>
-
-                <i class="bi bi-x-lg text-white position-absolute top-0 end-0 m-3 d-flex cursor-pointer" (click)="onCloseCreationCall()"></i>
-            </form>
-        </div>
-    </popup-component>
-}
+                    <i class="bi bi-x-lg text-white position-absolute top-0 end-0 m-3 d-flex cursor-pointer" (click)="onCloseCreationCall()"></i>
+                </form>
+            </div>
+        </popup-component>
+    }
+</ng-container>

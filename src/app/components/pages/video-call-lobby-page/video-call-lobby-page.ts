@@ -2,10 +2,11 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { VideoCallService } from '../../../services/video-call-service';
 import { HeaderService } from '../../../services/header-service';
+import { TranslocoDirective } from '@ngneat/transloco';
 
 @Component({
     selector: 'video-call-lobby-page',
-    imports: [],
+    imports: [TranslocoDirective],
     templateUrl: './video-call-lobby-page.html',
     styleUrl: './video-call-lobby-page.css',
 })

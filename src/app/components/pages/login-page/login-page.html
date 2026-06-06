@@ -1,41 +1,43 @@
-<div class="w-100 h-100 container d-flex justify-content-center align-items-center bg-transparent">
+<ng-container *transloco="let t">
+    <div class="w-100 h-100 container d-flex justify-content-center align-items-center bg-transparent">
 
-    <div class="container bg-white p-5 d-flex col-11 col-sm-10 rounded">
-        <form class="col-12 col-md-6 bg-white d-flex justify-content-lg-center align-items-center gap-4 flex-column" [formGroup]="isLogin ? loginForm : signUpForm" (submit)="onSubmit()">
-            <h2>{{isLogin ? 'Inicio de sesión' : 'Registro'}}</h2>
+        <div class="container bg-white p-5 d-flex col-11 col-sm-10 rounded">
+            <form class="col-12 col-md-6 bg-white d-flex justify-content-lg-center align-items-center gap-4 flex-column" [formGroup]="isLogin ? loginForm : signUpForm" (submit)="onSubmit()">
+                <h2>{{isLogin ? t('login.titleSignIn') : t('login.titleSignUp')}}</h2>
 
-            <div class="d-flex d-md-none justify-content-lg-center align-items-center">
+                <div class="d-flex d-md-none justify-content-lg-center align-items-center">
+                    <img src="assets/imgs/videollamada.webp" alt="" class="img-fluid">
+                </div>
+
+                @if (!isLogin){
+                    <div class="form-group w-100">
+                        <label for="name">{{ t('login.inputName') }}</label>
+                        <input type="text" class="form-control" id="name" placeholder="{{ t('login.inputName') }}" formControlName="name">
+                    </div>
+                }
+
+                <div class="form-group w-100">
+                    <label for="email">{{ t('login.inputEmail') }}</label>
+                    <input type="email" class="form-control" id="email" placeholder="{{ t('login.inputEmail') }}" formControlName="email">
+                </div>
+                <div class="form-group w-100">
+                    <label for="password">{{ t('login.inputPassword') }}</label>
+                    <div class="input-group">
+                        <input [type]="hiddenPassword ? 'password' : 'text'" class="form-control" placeholder="{{ t('login.inputPassword') }}" formControlName="password">
+                        <button class="btn btn-outline-secondary border-gray bg-primary-custom" type="button" (click)="hiddenPassword = !hiddenPassword">
+                            <i class="bi text-light" [ngClass]="hiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash-fill'"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="w-100 d-flex flex-row gap-4">
+                    <button type="submit" class="btn btn-primary bg-primary-custom">{{!isLogin ? t('login.buttonSignUp') : t('login.buttonSignIn')}}</button>
+                    <button class="btn btn-primary bg-primary-custom" (click)="toggleLogin()">{{isLogin ? t('login.buttonSignUp') : t('login.buttonSignIn')}}</button>
+                </div>
+            </form>
+            <div class="col-6 d-none d-md-flex justify-content-lg-center align-items-center">
                 <img src="assets/imgs/videollamada.webp" alt="" class="img-fluid">
             </div>
-
-            @if (!isLogin){
-                <div class="form-group w-100">
-                    <label for="email">Correo electrónico</label>
-                    <input type="text" class="form-control" id="name" placeholder="Nombre" formControlName="name">
-                </div>
-            }
-
-            <div class="form-group w-100">
-                <label for="email">Correo electrónico</label>
-                <input type="email" class="form-control" id="email" placeholder="Correo electrónico" formControlName="email">
-            </div>
-            <div class="form-group w-100">
-                <label for="password">Contraseña</label>
-                <div class="input-group">
-                    <input [type]="hiddenPassword ? 'password' : 'text'" class="form-control" placeholder="Contraseña" formControlName="password">
-                    <button class="btn btn-outline-secondary border-gray bg-primary-custom" type="button" (click)="hiddenPassword = !hiddenPassword">
-                        <i class="bi text-light" [ngClass]="hiddenPassword ? 'bi-eye-fill' : 'bi-eye-slash-fill'"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="w-100 d-flex flex-row gap-4">
-                <button type="submit" class="btn btn-primary bg-primary-custom">{{!isLogin ? 'Registrarse' : 'Iniciar sesión'}}</button>
-                <button class="btn btn-primary bg-primary-custom" (click)="toggleLogin()">{{isLogin ? 'Registrarse' : 'Iniciar sesión'}}</button>
-            </div>
-        </form>
-        <div class="col-6 d-none d-md-flex justify-content-lg-center align-items-center">
-            <img src="assets/imgs/videollamada.webp" alt="" class="img-fluid">
         </div>
-    </div>
 
-</div>
+    </div>
+</ng-container>

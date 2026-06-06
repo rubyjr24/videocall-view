@@ -1,16 +1,17 @@
-import { Component, computed, effect, ElementRef, signal, untracked, ViewChild, WritableSignal } from '@angular/core';
+import { Component, computed, effect, ElementRef, HostListener, KeyValueDiffers, signal, untracked, ViewChild, WritableSignal } from '@angular/core';
 import { AuthService } from '../../../services/auth-service';
 import { RxStompService } from '../../../services/messaging/rx-stomp-service';
 import { VideoCallService } from '../../../services/video-call-service';
 import { SignalMessage } from '../../../interfaces/signal-message';
-import { KeyValuePipe, NgStyle, NgClass } from '@angular/common';
+import { KeyValuePipe, NgStyle } from '@angular/common';
 import { SelectorDeviceComponent } from './components/selector-device-component/selector-device-component';
 import { Router } from '@angular/router';
 import { HeaderService } from '../../../services/header-service';
+import { TranslocoDirective } from '@ngneat/transloco';
 
 @Component({
     selector: 'video-call-page',
-    imports: [KeyValuePipe, SelectorDeviceComponent, NgStyle],
+    imports: [KeyValuePipe, SelectorDeviceComponent, NgStyle, TranslocoDirective],
     templateUrl: './video-call-page.html',
     styleUrl: './video-call-page.css',
 })
@@ -33,7 +34,9 @@ export class VideoCallPage {
 
     roomId!:number;
     userId!:string;
+    userName!: string;
 
+    userNames: Map<string, string> = new Map();
     localStream = signal<MediaStream | undefined>(undefined);
     peers: WritableSignal<Map<string, RTCPeerConnection>> = signal(new Map());
     remoteStreams: WritableSignal<Map<string, MediaStream[]>> = signal(new Map());
@@ -47,8 +50,8 @@ export class VideoCallPage {
     @ViewChild('localVideo', { static: true })
     localVideo?: ElementRef<HTMLVideoElement>;
 
-    @ViewChild('videocallsContainer', { static: true })
-    videocallsContainer!: ElementRef<HTMLVideoElement>;
+    @ViewChild('videocallsContainer', { static: false })
+    videocallsContainer!: ElementRef<HTMLDivElement>;
 
     cameras = signal<MediaDeviceInfo[]>([]);
     microphones = signal<MediaDeviceInfo[]>([]);
@@ -113,6 +116,8 @@ export class VideoCallPage {
 
         this.client.connect(); // Cambiar e implementar todo dentro de videocall
         this.userId = this.auth.authData()!.userId.toString();
+        this.userName = this.auth.authData()!.name;
+        console.log(this.userName)
         this.roomId = this.videocall.roomId!;
         await this.loadDevices();
         await this.initMedia();
@@ -123,6 +128,14 @@ export class VideoCallPage {
     ngOnDestroy() {
         this.leftRoom();
     }
+
+    @HostListener('window:beforeunload', ['$event'])
+    unloadHandler(event: Event) {
+        this.leftRoom();
+        event.returnValue = false; 
+        return false;
+    }
+
 
     // =============================
     // 1️⃣ Obtener cámara/micrófono
@@ -159,6 +172,9 @@ export class VideoCallPage {
         this.client.publish(`/api/room/${this.roomId}/signal`, {
             type: 'join',
             roomId: this.roomId,
+            payload: {
+                name: this.userName
+            }
         });
     }
 
@@ -200,6 +216,7 @@ export class VideoCallPage {
         switch (message.type) {
 
             case 'join':
+                this.userNames.set(message.from, message.payload.name);
                 await this.createPeerConnection(message.from, true);
                 break;
 
@@ -216,6 +233,7 @@ export class VideoCallPage {
                 break;
 
             case 'user-left':
+                this.userNames.delete(message.from);
                 this.removePeer(message.from!);
                 break;
         }
@@ -300,8 +318,11 @@ export class VideoCallPage {
         // todo: mejorar
         // poner video 100x100 width y height
         // cuando se cierra la pagina enviar petición de cierre de sesión
-        const videocallsContainer = this.videocallsContainer.nativeElement;
-        const videos: NodeListOf<HTMLVideoElement> = videocallsContainer.querySelectorAll('video');
+
+        if (this.videocallsContainer == undefined) return;
+
+        const videocallsContainer = this.videocallsContainer?.nativeElement;
+        const videos: NodeListOf<HTMLVideoElement> = videocallsContainer?.querySelectorAll('video') ?? [];
 
         videos.forEach(async (video: HTMLVideoElement) => {
 
@@ -327,7 +348,10 @@ export class VideoCallPage {
 
         await this.flushIceCandidates(message.from, pc);
 
-        const answer = await pc.createAnswer();
+        const answer = await pc.createAnswer({
+            offerToReceiveAudio: true,
+            offerToReceiveVideo: true
+        });
         await pc.setLocalDescription(answer);
 
         this.client.publish(`/api/room/${this.roomId}/signal`, {
@@ -408,6 +432,7 @@ export class VideoCallPage {
     // 8️⃣ Remover peer
     // =============================
     removePeer(userId: string) {
+        console.log(`removePeer ${userId}`)
         const pc = this.peers().get(userId);
         if (pc) {
             pc.close();
@@ -509,17 +534,23 @@ export class VideoCallPage {
 
     async onSpeakerChange() {
 
-        if (this.speaker() == undefined) return;
+        if (this.speaker() == undefined || this.videocallsContainer == undefined) return;
 
         const videocallsContainer = this.videocallsContainer.nativeElement;
         const videos: NodeListOf<HTMLVideoElement> = videocallsContainer.querySelectorAll('video');
 
         videos.forEach(async (video: HTMLVideoElement) => {
 
-            if (this.localVideo && video == this.localVideo.nativeElement) return;
+            if (this.localVideo && video == this.localVideo.nativeElement){
+                video.muted = true;
+                video.volume = 0;
+                video.play();
+                return;
+            }
 
             try {
                 await video.setSinkId(this.speaker()!.deviceId);
+                await video.play();
             } catch (_) {}
         });
         

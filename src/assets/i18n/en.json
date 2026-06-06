@@ -1,0 +1,59 @@
+{
+    "header":{
+        "title": "Callio",
+        "buttonSignOut": "Sign out",
+        "buttonDeleteAccount": "Delete account",
+        "toast": {
+            "errorSignOut": "Could not sign out",
+            "errorDeleteAccount": "Could not delete your account"
+        }
+    },
+    "home": {
+        "titleOwnVideocalls": "Your videocalls",
+        "titleInvitations": "Invitations",
+        "contact":{
+            "title": "Contacts",
+            "buttonAdd": "Add"
+        },
+        "videocall": {
+            "title": "Create a videocall",
+            "labelInputName": "Videocall name",
+            "labelInputInvitations": "Invitations",
+            "buttonAddInvitationEmail": "Add",
+            "buttonCreateCall": "Create"
+        },
+        "toast": {
+            "successfulRoomCreation": "Room {{name}} has been created successfully",
+            "errorRoomCreation": "An error occurred and the videocall could not be created",
+            "errorLoadingOwnCalls": "An error occurred and the videocalls could not be loaded",
+            "errorLoadingInvitationCalls": "An error occurred and the videocall invitations could not be loaded",
+            "errorLoadingContacts": "An error occurred and the contacts could not be loaded",
+            "successfulRoomDelete": "Room {{name}} has been deleted successfully",
+            "errorDeletingRoom": "An error occurred and the room could not be deleted",
+            "errorSameEmail": "You cannot add your own email as a contact",
+            "errorEmailNotFound": "The email you entered does not belong to any user",
+            "errorContactAlreadyInContacts": "The contact was not created because it was already in your contact list",
+            "errorCreatingContact": "An error occurred and the contact could not be created",
+            "errorContactNotFoundToDelete": "The contact you are trying to delete does not exist",
+            "errorDeletingContact": "An error occurred and the contact could not be deleted",
+            "newInvitation": "An invitation to the videocall {{name}} has been added",
+            "ownerDeleteRoom": "The owner has deleted room {{name}}"
+        }
+    },
+    "login": {
+        "titleSignUp": "Sign up",
+        "titleSignIn": "Sign in",
+        "inputName": "Name",
+        "inputEmail": "Email",
+        "inputPassword": "Password",
+        "buttonSignUp": "Sign up",
+        "buttonSignIn": "Sign in",
+        "toast": {
+            "errorUserOrPasswordIncorrect": "The user or password is incorrect",
+            "errorCreatingUser": "Could not create the user successfully"
+        }
+    },
+    "lobby": {
+        "buttonJoinCall": "Join the videocall"
+    }
+}
