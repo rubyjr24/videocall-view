@@ -1,9 +1,9 @@
 <ng-container *transloco="let t">
     <div class="h-100 w-100 d-flex gap-0 flex-column bg-light-black mh-100">
-        <div #videocallsContainer class="position-relative videocalls w-100 h-100 gap-3 p-4 pb-0 d-grid grid-template-columns">
+        <div #videocallsContainer class="position-relative videocalls w-100 gap-3 p-4 pb-0 d-grid grid-template-columns h-100   "> <!--flex-grow-1-->
             <div class="video-cam-card d-flex justify-content-center align-items-stretch rounded shadow-lg w-100 position-relative mh-100">
                 @if (this.isCamEnabled()){
-                    <video #localVideo [srcObject]="localStream()" autoplay muted playsinline class="w-100 h-100 mw-100 object-fit-contain" [muted]="true"></video>
+                    <video #localVideo [srcObject]="localStream()" autoplay muted playsinline class="mw-100 w-100 h-100 object-fit-cover" [muted]="true"></video>
                 }@else{
                     <img src="./assets/imgs/avatar.png" alt="Avatar" class="object-fit-contain mw-100">
                 }
@@ -20,37 +20,46 @@
                 </div>
             </div>
 
-            @for (streams of remoteStreams() | keyvalue; track streams.key) {
+            @for (peer of peers() | keyvalue; track peer.key) {
 
-                @for (stream of streams.value; track stream.id) {
-                    <div class="video-cam-card d-flex justify-content-center align-items-center rounded shadow-lg w-100 h-100 position-relative object-fit-cover" >
+                <div class="video-cam-card d-flex justify-content-center align-items-stretch rounded shadow-lg w-100 position-relative mh-100" >
+                    @for (stream of remoteStreams().get(peer.key); track stream.id) {
 
-                        @if(stream.getVideoTracks().length && stream.active && (usersStreamState().has(streams.key) ? usersStreamState().get(streams.key)![1] : false)){
+                        @if(stream.getVideoTracks().length && stream.active && (usersStreamState().has(peer.key) ? usersStreamState().get(peer.key)![1] : false)){
                             <video [srcObject]="stream" autoplay playsinline class="mw-100 w-100 h-100 object-fit-cover"></video>
                         }@else{
-                            <img src="./assets/imgs/avatar.png" alt="Avatar" class="object-fit-contain mw-100 mh-100">
+                            <img src="./assets/imgs/avatar.png" alt="Avatar" class="object-fit-contain mw-100">
                         }
 
                         <div class="user-label position-absolute" style="bottom: 10px; left: 10px;">
-                            <span class="text-light fs-3">{{ userNames().get(streams.key) }}</span>
+                            <span class="text-light fs-3">{{ userNames().get(peer.key) }}</span>
                         </div>
 
                         <div class="user-label position-absolute" style="bottom: 10px; right: 10px;">  
-                            @if(usersStreamState().has(streams.key) ? usersStreamState().get(streams.key)![0] : false){
+                            @if(usersStreamState().has(peer.key) ? usersStreamState().get(peer.key)![0] : false){
                                 <i class="bi bi-mic-fill text-light fs-3"></i>
                             }@else{
                                 <i class="bi bi-mic-mute-fill text-light fs-3"></i>
                             }
                         </div>
 
-                    </div>
-                }
+                        
+                    }@empty {
+                        <img src="./assets/imgs/avatar.png" alt="Avatar" class="object-fit-contain mw-100 mh-100">
+                        <div class="user-label position-absolute" style="bottom: 10px; left: 10px;">
+                            <span class="text-light fs-3">{{ userNames().get(peer.key) }}</span>
+                        </div>
+                        <div class="user-label position-absolute" style="bottom: 10px; right: 10px;">  
+                            <i class="bi bi-mic-mute-fill text-light fs-3"></i>
+                        </div>
+                    }
+                </div>
             }
         </div>
-        <div class="p-3 d-flex justify-content-center align-items-center gap-3">
-            <div class="position-relative d-flex flex-row border border-1 border-light rounded">
+        <div class="container-buttons position-relative p-3 d-flex justify-content-center align-items-center gap-3">
+            <div class="container-audio-buttons position-relative d-flex flex-row border border-1 border-light rounded">
                 @if(!this.hiddenSelectAudioDevices){
-                    <div class="position-absolute translate-middle-x start-50 d-flex flex-row gap-4 justify-content-center align-content-center" style="bottom: 120%; width: 75vw;">
+                    <div class="selector-device-container position-absolute translate-middle-x start-50 d-flex flex-row gap-4 justify-content-center align-content-center px-4">
                         <selector-device-component [(device)]="microphone" [devices]="microphones()"/>
                         <selector-device-component [(device)]="speaker" [devices]="speakers()"/>
                     </div>
@@ -58,15 +67,15 @@
                 <button class="btn bg-light-black border-0" (click)="this.toggleSelectAudioDevices()">
                     <i class="bi bi-caret-up-fill text-light fs-6"></i>
                 </button>
-                <button class="btn bg-light-black border-1 border-light border-end-0 border-top-0 border-bottom-0" (click)="this.isMicEnabled.set(!this.isMicEnabled())">
+                <button class="btn bg-light-black border-1 border-light border-end-0 border-top-0 border-bottom-0" (click)="onClickMuteMic()">
                     <i class="bi text-light fs-4" [class.bi-mic-fill]="this.isMicEnabled()" [class.bi-mic-mute-fill]="!this.isMicEnabled()"></i>
                 </button>
             </div>
 
-            <div class="position-relative d-flex flex-row border border-1 border-light rounded">
+            <div class="container-cam-button position-relative d-flex flex-row border border-1 border-light rounded">
 
                 @if(!this.hiddenSelectCamDevices){
-                    <div class="position-absolute translate-middle-x start-50 d-flex flex-row gap-4 justify-content-center align-content-center" style="bottom: 120%; width: 75vw;">
+                    <div class="selector-device-container position-absolute translate-middle-x start-50 d-flex flex-row gap-4 justify-content-center align-content-center px-4">
                         <selector-device-component [(device)]="camera" [devices]="cameras()"/>
                     </div>
                 }
@@ -74,7 +83,7 @@
                 <button class="btn bg-light-black border-0" (click)="this.toggleSelectCamDevices()">
                     <i class="bi bi-caret-up-fill text-light fs-6"></i>
                 </button>
-                <button class="btn bg-light-black border-1 border-light border-end-0 border-top-0 border-bottom-0" (click)="this.isCamEnabled.set(!isCamEnabled())">
+                <button class="btn bg-light-black border-1 border-light border-end-0 border-top-0 border-bottom-0" (click)="onClicMuteCam()">
                     <i class="bi bi-camera-video-off-fill text-light fs-4" [class.bi-camera-video-fill]="this.isCamEnabled()" [class.bi-camera-video-off-fill]="!this.isCamEnabled()"></i>
                 </button>
             </div>

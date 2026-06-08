@@ -18,19 +18,43 @@
 }
 
 :host .videocalls{
-  grid-auto-rows: 1fr; 
-
-  /* REGLA BASE (Móviles con 1 o 2 personas): 1 Columna */
-  grid-template-columns: 1fr; 
-
+    grid-auto-rows: 1fr;
+    grid-template-columns: 1fr; 
 }
 
 :host .videocalls:has(> :nth-child(3)) {
-  grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+}
+
+
+:host .selector-device-container{
+    bottom: 120%;
+    width: 75vw;
+}
+
+
+@media (max-width: 576px) {
+    :host .selector-device-container{
+        flex-direction: column !important;
+    }
+}
+
+@media (max-width: 992px) {
+    :host .container-audio-buttons, :host .container-cam-button{
+        position: unset !important;
+    }
+
+    :host .selector-device-container{
+        width: 100%;
+        left: 50%;
+        transform: none;
+    }
 }
 
 @media (min-width: 992px) {
-  :host .videocalls:has(> :nth-child(2)) {
-    grid-template-columns: 1fr 1fr;
-  }
+    :host .videocalls:has(> :nth-child(2)) {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    
 }

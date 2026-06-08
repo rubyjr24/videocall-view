@@ -3,7 +3,7 @@ import { AuthService } from '../../../services/auth-service';
 import { RxStompService } from '../../../services/messaging/rx-stomp-service';
 import { VideoCallService } from '../../../services/video-call-service';
 import { SignalMessage } from '../../../interfaces/signal-message';
-import { KeyValuePipe, NgStyle } from '@angular/common';
+import { KeyValuePipe } from '@angular/common';
 import { SelectorDeviceComponent } from './components/selector-device-component/selector-device-component';
 import { Router } from '@angular/router';
 import { HeaderService } from '../../../services/header-service';
@@ -11,7 +11,7 @@ import { TranslocoDirective } from '@ngneat/transloco';
 
 @Component({
     selector: 'video-call-page',
-    imports: [KeyValuePipe, SelectorDeviceComponent, NgStyle, TranslocoDirective],
+    imports: [KeyValuePipe, SelectorDeviceComponent, TranslocoDirective],
     templateUrl: './video-call-page.html',
     styleUrl: './video-call-page.css',
 })
@@ -89,7 +89,7 @@ export class VideoCallPage {
         this.onSpeakerChange()
     });
 
-    columnsGridVideocallContainer = computed(() => Math.ceil(Math.sqrt(this.peers().size + 1)));
+    //columnsGridVideocallContainer = computed(() => Math.ceil(Math.sqrt(this.peers().size + 1)));
 
     pendingIceCandidates = new Map<string, RTCIceCandidateInit[]>();
 
@@ -104,6 +104,17 @@ export class VideoCallPage {
     toggleSelectCamDevices(){
         this.hiddenSelectCamDevices = !this.hiddenSelectCamDevices;
         this.hiddenSelectAudioDevices = true;
+    }
+
+    onClickMuteMic(){
+        if (this.microphone() == null && this.microphones().length == 0) return;
+        this.isMicEnabled.set(!this.isMicEnabled());
+    }
+
+    
+    onClicMuteCam(){
+        if (this.camera() == null && this.cameras().length == 0) return;
+        this.isCamEnabled.set(!this.isCamEnabled());
     }
 
     constructor(
@@ -170,6 +181,16 @@ export class VideoCallPage {
             // Seteamos el estado inicial de los controles
             this.isCamEnabled.set(this.camera() != undefined); 
             this.isMicEnabled.set(this.microphone != undefined);
+        });
+    }
+
+    private sendName(){
+        this.client.publish(`/api/room/${this.roomId}/signal`, {
+            type: 'user-name',
+            roomId: this.roomId,
+            payload: {
+                name: this.userName
+            }
         });
     }
 
@@ -250,6 +271,7 @@ export class VideoCallPage {
                 await this.createPeerConnection(message.from, true);
                 this.sendAudioStatus();
                 this.sendVideoStatus();
+                this.sendName();
                 break;
 
             case 'offer':
@@ -316,6 +338,16 @@ export class VideoCallPage {
                         const lastValues = map.get(message.from) ?? [false, false];
                         lastValues[1] = false;
                         map.set(message.from, lastValues);
+                        return map;
+                    }
+                );
+                break;
+            
+            case 'user-name':
+                this.userNames.update(
+                    current => {
+                        const map = new Map(current);
+                        map.set(message.from, message.payload.name);
                         return map;
                     }
                 );
@@ -608,7 +640,9 @@ export class VideoCallPage {
                     });
 
                 }catch(_){
-                    console.log("NO tiene dispositivos")
+                    console.log("NO tiene dispositivos");
+                    this.isCamEnabled.set(false);
+                    this.isMicEnabled.set(false);
                     return;                
                 }
             }
