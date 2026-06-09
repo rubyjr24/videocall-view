@@ -1,0 +1,18 @@
+
+:host .language-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: transparent;
+    color: #333;
+    font-family: inherit;
+    width: fit-content;
+}
+
+:host select:focus {
+    outline: none;
+}
+
+:host i{
+    color: var(--primary-color);
+}

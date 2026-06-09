@@ -4,10 +4,11 @@ import { AuthService } from '../../../services/auth-service';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../services/toast-service';
 import { TranslocoDirective, TranslocoService } from '@ngneat/transloco';
+import { LanguageSwitcherComponent } from "../language-switcher-component/language-switcher-component";
 
 @Component({
     selector: 'header-component',
-    imports: [TranslocoDirective],
+    imports: [TranslocoDirective, LanguageSwitcherComponent],
     templateUrl: './header-component.html',
     styleUrl: './header-component.css',
 })

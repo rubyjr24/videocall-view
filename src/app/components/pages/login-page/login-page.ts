@@ -7,10 +7,11 @@ import { ToastService } from '../../../services/toast-service';
 import { NgClass } from '@angular/common';
 import { HeaderService } from '../../../services/header-service';
 import { TranslocoDirective, TranslocoService } from '@ngneat/transloco';
+import { LanguageSwitcherComponent } from "../../common/language-switcher-component/language-switcher-component";
 
 @Component({
     selector: 'login-page',
-    imports: [ReactiveFormsModule, NgClass, TranslocoDirective],
+    imports: [ReactiveFormsModule, NgClass, TranslocoDirective, LanguageSwitcherComponent],
     templateUrl: './login-page.html',
     styleUrl: './login-page.css',
 })

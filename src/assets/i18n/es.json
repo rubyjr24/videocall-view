@@ -55,5 +55,8 @@
     },
     "lobby": {
         "buttonJoinCall": "Unirse a la videoconferencia"
+    },
+    "videocall": {
+        "defaultTextDeviceSelector": "-- Seleccione un dispositivo --"
     }
 }

@@ -1,0 +1,13 @@
+<div class="language-selector d-flex flex-row align-items-stretch border border-1 rounded gap-0 w-100 bg-transparent">
+    @if (!disableIcon) {
+        <div class="d-flex justify-content-center align-items-center px-2 border border-1 border-top-0 border-start-0 border-bottom-0 bg-primary-custom-only rounded-start">
+            <i class="bi bi-globe fs-5 text-light"></i>
+        </div>
+    }
+    <select class="form-select form-control w-100 border-0 rounded-0 rounded-end bg-transparent" [ngClass]="!textColorLight ? 'text-dark' : 'text-light'" (change)="changeLanguage($event)" [value]="activeLang()">
+        @for (lang of availableLanguages; track lang.id) {
+        <option [value]="lang.id" class="text-black">{{ lang.label }}</option>
+        }
+    </select>
+
+</div>

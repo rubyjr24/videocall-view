@@ -1,9 +1,10 @@
 import { Component, Input, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoDirective } from "@ngneat/transloco";
 
 @Component({
   selector: 'selector-device-component',
-  imports: [FormsModule],
+  imports: [FormsModule, TranslocoDirective],
   templateUrl: './selector-device-component.html',
   styleUrl: './selector-device-component.css',
 })
