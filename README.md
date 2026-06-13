@@ -1,59 +1,45 @@
-# VideocallView
+# 🚀 Callio (Angular 21 + Node.js 25)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
+Breve descripción del proyecto: qué hace, cuál es su propósito principal y qué tecnología utiliza (Angular 21, Node.js 25, TypeScript).
 
-## Development server
+---
 
-To start a local development server, run:
+## 🛠️ Requisitos Previos
 
-```bash
-ng serve
-```
+Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+* **Node.js v25.x**: Puedes verificar tu versión ejecutando `node -v` en tu terminal. Se recomienda usar nvm (Node Version Manager).
+* **Angular CLI**: Instálalo globalmente ejecutando: `npm install -g @angular/cli`.
+* **Editor de código**: [Visual Studio Code](https://code.visualstudio.com/) es el recomendado para este stack.
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## ⚙️ Configuración del Entorno (Node.js 25)
 
-```bash
-ng generate component component-name
-```
+Para asegurar que estás usando la versión correcta de Node.js en tu entorno de desarrollo:
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+1. **Instalación de Node.js**: Descarga la versión 25 desde el [sitio oficial](https://nodejs.org/) o utiliza tu gestor de versiones (ej: `nvm install 25`).
+2. **Seleccionar versión**: Asegúrate de estar usándola: `nvm use 25`.
+3. **Verificación en VS Code**:
+    * Abre tu proyecto en VS Code.
+    * Abre la terminal integrada y ejecuta `node -v`.
+    * Asegúrate de que el editor esté configurado para reconocer el SDK de Node en las configuraciones del proyecto si utilizas extensiones de depuración.
 
-```bash
-ng generate --help
-```
+---
 
-## Building
+## 📦 Instalación de Dependencias y Ejecución
 
-To build the project run:
+Para poner en marcha la aplicación, sigue estos pasos desde la raíz del proyecto:
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 1. Instalación de dependencias
+El proyecto utiliza npm como gestor de paquetes. Ejecuta:
 
 ```bash
-ng test
+npm install
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### 2. Ejecución
 
 ```bash
-ng e2e
+npm start -- --host 0.0.0.0 --ssl true --ssl-key ./key.pem --ssl-cert ./cert.pem
 ```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
