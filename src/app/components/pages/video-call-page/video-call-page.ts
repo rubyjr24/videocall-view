@@ -155,10 +155,6 @@ export class VideoCallPage {
         return true;
     }
 
-
-    // =============================
-    // 1️⃣ Obtener cámara/micrófono
-    // =============================
     async initMedia() {
         try{
             this.localStream.set(await this.createMediaStream());
@@ -194,9 +190,6 @@ export class VideoCallPage {
         });
     }
 
-    // =============================
-    // 2️⃣ Unirse a la sala
-    // =============================
     joinRoom() {
         this.client.publish(`/api/room/${this.roomId}/signal`, {
             type: 'join',
@@ -223,9 +216,6 @@ export class VideoCallPage {
         this.router.navigate(['/home']);
     }
 
-    // =============================
-    // 3️⃣ Escuchar señalización
-    // =============================
     listenSocket() {
         this.client.watch(`/app/room/${this.roomId}`).subscribe(async (message: SignalMessage) => {
 
@@ -355,9 +345,6 @@ export class VideoCallPage {
         }
     }
 
-    // =============================
-    // 4️⃣ Crear conexión
-    // =============================
     async createPeerConnection(remoteUserId: string, isInitiator: boolean) {
 
         if (this.peers().has(remoteUserId)) return;
@@ -448,11 +435,6 @@ export class VideoCallPage {
             });
         }
 
-
-        // todo: mejorar
-        // poner video 100x100 width y height
-        // cuando se cierra la pagina enviar petición de cierre de sesión
-
         if (this.videocallsContainer == undefined) return;
 
         const videocallsContainer = this.videocallsContainer?.nativeElement;
@@ -469,9 +451,6 @@ export class VideoCallPage {
 
     }
 
-    // =============================
-    // 5️⃣ Manejar OFFER
-    // =============================
     async handleOffer(message: SignalMessage) {
 
         await this.createPeerConnection(message.from, false);
@@ -499,9 +478,6 @@ export class VideoCallPage {
         });
     }
 
-    // =============================
-    // 6️⃣ Manejar ANSWER
-    // =============================
     async handleAnswer(message: SignalMessage) {
         
         const pc = this.peers().get(message.from);
@@ -521,19 +497,6 @@ export class VideoCallPage {
 
         await this.flushIceCandidates(message.from, pc);
     }
-
-    // =============================
-    // 7️⃣ Manejar ICE
-    // =============================
-    /*
-    async handleIceCandidate(message: SignalMessage) {
-        const pc = this.peers().get(message.from);
-        
-        if (!pc) return;
-
-        await pc.addIceCandidate(new RTCIceCandidate(message.payload.data));
-    }
-    */
 
     async handleIceCandidate(message: SignalMessage) {
         const pc = this.peers().get(message.from);
@@ -573,9 +536,6 @@ export class VideoCallPage {
         }
     }
 
-    // =============================
-    // 8️⃣ Remover peer
-    // =============================
     removePeer(userId: string) {
         const pc = this.peers().get(userId);
         if (pc) {
