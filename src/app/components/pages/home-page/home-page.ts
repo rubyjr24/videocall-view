@@ -129,8 +129,6 @@ export class HomePage {
             name: room.name
         });
 
-        console.log(room);
-
         this.emailInvitations.update(emails => {
             const newSet = new Set(emails);
             room.userInvitations
@@ -204,14 +202,14 @@ export class HomePage {
                     return rooms;
                 });
                 this.resetPopupCreationCall();
-                this.toast.show(this.trasnlocoService.translate('home.toast.successfulRoomCreation', {
+                this.toast.show(this.trasnlocoService.translate('home.toast.successfulRoomEdition', {
                     name: room.name
                 }));
             },
             error: (err: HttpErrorResponse) => {
                 const errorData = err.error as ErrorResponse;
 
-                this.toast.show(this.trasnlocoService.translate('home.toast.errorRoomCreation'));
+                this.toast.show(this.trasnlocoService.translate('home.toast.errorRoomEdition'));
                 console.error(errorData)
             }
         });

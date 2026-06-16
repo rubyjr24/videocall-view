@@ -25,7 +25,9 @@
         },
         "toast": {
             "successfulRoomCreation": "Room {{name}} has been created successfully",
+            "successfulRoomEdition": "Room {{name}} has been edited successfully",
             "errorRoomCreation": "An error occurred and the videocall could not be created",
+            "errorRoomEdition": "An error occurred and the videocall could not be edited",
             "errorLoadingOwnCalls": "An error occurred and the videocalls could not be loaded",
             "errorLoadingInvitationCalls": "An error occurred and the videocall invitations could not be loaded",
             "errorLoadingContacts": "An error occurred and the contacts could not be loaded",

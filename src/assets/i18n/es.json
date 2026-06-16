@@ -25,7 +25,9 @@
         },
         "toast": {
             "successfulRoomCreation": "Se ha creado correctamente la sala {{name}}",
+            "successfulRoomEdition": "Se ha editado correctamente la sala {{name}}",
             "errorRoomCreation": "Ha ocurrido un error y no se ha podido crear la videoconferencias",
+            "errorRoomEdition": "Ha ocurrido un error y no se ha podido editar la videoconferencias",
             "errorLoadingOwnCalls": "Ha ocurrido un error y no se ha podido cargar las videoconferencias",
             "errorLoadingInvitationCalls": "Ha ocurrido un error y no se ha podido cargar las invitaciones de las videoconferencias",
             "errorLoadingContacts": "Ha ocurrido un error y no se ha podido cargar los contactos",
