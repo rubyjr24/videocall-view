@@ -72,6 +72,8 @@ export class HomePage {
         });
 
     mostrarContactos: boolean = false;
+    editForm: boolean = false;
+    roomId?: number
     emailSearchTerm = signal('');
 
     filteredContacts = computed(() => {
@@ -119,7 +121,32 @@ export class HomePage {
         this.formCreateCallPopupEnabled = true;
     }
 
+    openEditFormCreationCall(roomId: number){
+
+        const room: RoomResponse = this.calls().find(call => call.roomId === roomId)!;
+
+        this.creationCallForm.setValue({
+            name: room.name
+        });
+
+        console.log(room);
+
+        this.emailInvitations.update(emails => {
+            const newSet = new Set(emails);
+            room.userInvitations
+                .filter(user => user.userId != this.auth.authData()?.userId)
+                .map(user => user.email)
+                .forEach(email => newSet.add(email));
+            return newSet;
+        });
+
+        this.editForm = true;
+        this.roomId = roomId;
+        this.openFormCreationCall();
+    }
+
     onCloseCreationCall(){
+        this.editForm = false;
         this.resetPopupCreationCall();
     }
 
@@ -129,7 +156,9 @@ export class HomePage {
         this.creationCallForm.controls.name.setValue('');
         this.invitationForm.controls.email.setValue('');
         this.emailSearchTerm.set('');
-        this.formCreateCallPopupEnabled = false
+        this.formCreateCallPopupEnabled = false;
+        this.editForm = false;
+        this.roomId = undefined;
     }
 
     createCall() {
@@ -143,6 +172,37 @@ export class HomePage {
             next: (room: RoomResponse) => {
                 this.formCreateCallPopupEnabled = false;
                 this.calls.update(currentCalls => [room, ...currentCalls]);
+                this.resetPopupCreationCall();
+                this.toast.show(this.trasnlocoService.translate('home.toast.successfulRoomCreation', {
+                    name: room.name
+                }));
+            },
+            error: (err: HttpErrorResponse) => {
+                const errorData = err.error as ErrorResponse;
+
+                this.toast.show(this.trasnlocoService.translate('home.toast.errorRoomCreation'));
+                console.error(errorData)
+            }
+        });
+
+    }
+
+    editCall() {
+
+        const data: RoomRequest = {
+            roomId: this.roomId!,
+            name: this.creationCallForm.controls.name.value,
+            emails: [...this.emailInvitations()]
+        }
+
+        this.videoCall.editCall(data).subscribe({
+            next: (room: RoomResponse) => {
+                this.formCreateCallPopupEnabled = false;
+                this.calls.update(currentCalls => {
+                    const rooms = [...currentCalls.filter(otherRoom => otherRoom.roomId != room.roomId)];
+                    rooms.push(room);
+                    return rooms;
+                });
                 this.resetPopupCreationCall();
                 this.toast.show(this.trasnlocoService.translate('home.toast.successfulRoomCreation', {
                     name: room.name

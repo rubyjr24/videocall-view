@@ -16,7 +16,8 @@
                 @for (call of calls(); track call.roomId) {
                     <div class="videocall-card p-3">
                         <h3 class="text-white cursor-pointer text-center w-100 text-truncate" (click)="onClickVideoCall(call.roomId)">{{call.name}}</h3>
-                        <i class="bi bi-trash-fill text-white position-absolute top-0 end-0 p-3 d-flex cursor-pointer delete-call-icon" (click)="deleteCall(call.roomId)"></i>
+                        <i class="bi bi-trash-fill text-white position-absolute top-0 end-0 p-3 d-flex cursor-pointer icon" (click)="deleteCall(call.roomId)"></i>
+                        <i class="bi bi-pencil-fill text-white position-absolute top-0 start-0 p-3 d-flex cursor-pointer icon" (click)="openEditFormCreationCall(call.roomId)"></i>
                     </div>
                 }
                 
@@ -113,7 +114,7 @@
 
                     }
                     
-                    <button type="submit" class="btn bg-primary-custom text-white rounded w-100" (click)="createCall()">{{ t('home.videocall.buttonCreateCall') }}</button>
+                    <button type="submit" class="btn bg-primary-custom text-white rounded w-100" (click)="editForm ? editCall() : createCall()">{{ t( editForm ? 'home.videocall.buttonSaveCall' : 'home.videocall.buttonCreateCall') }}</button>
 
                     <i class="bi bi-x-lg text-white position-absolute top-0 end-0 m-3 d-flex cursor-pointer" (click)="onCloseCreationCall()"></i>
                 </form>

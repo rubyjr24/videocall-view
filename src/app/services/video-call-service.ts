@@ -42,6 +42,13 @@ export class VideoCallService {
         );
     }
 
+    editCall(payload: RoomRequest){
+        return this.http.put<RoomResponse>(
+            `${this.config.apiUrl}/videocall/${payload.roomId}`,
+            payload
+        );
+    }
+
     getCalls(){
         return this.http.get<RoomResponse[]>(
             `${this.config.apiUrl}/videocall`

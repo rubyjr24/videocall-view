@@ -20,7 +20,8 @@
             "labelInputName": "Nombre de la videoconferencia",
             "labelInputInvitations": "Invitaciones",
             "buttonAddInvitationEmail": "Añadir",
-            "buttonCreateCall": "Crear"
+            "buttonCreateCall": "Crear",
+            "buttonSaveCall": "Guardar"
         },
         "toast": {
             "successfulRoomCreation": "Se ha creado correctamente la sala {{name}}",

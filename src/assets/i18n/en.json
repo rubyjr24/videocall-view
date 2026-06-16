@@ -20,7 +20,8 @@
             "labelInputName": "Videocall name",
             "labelInputInvitations": "Invitations",
             "buttonAddInvitationEmail": "Add",
-            "buttonCreateCall": "Create"
+            "buttonCreateCall": "Create",
+            "buttonSaveCall": "Save"
         },
         "toast": {
             "successfulRoomCreation": "Room {{name}} has been created successfully",

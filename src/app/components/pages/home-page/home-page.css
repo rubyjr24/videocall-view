@@ -52,6 +52,10 @@
     max-width: 600px;
 }
 
-.delete-call-icon{
+.icon{
+    z-index: 100;
+}
+
+.edit-call-icon{
     z-index: 100;
 }
